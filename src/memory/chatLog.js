@@ -88,45 +88,94 @@ export async function createTables() {
 export async function logDetailedMessage(message, client) {
   const botName = client.user.username;
   // User information
-  const { id: userId, username, discriminator, avatar } = message.author;
+  const {
+    id: userId,
+    username,
+    globalName,
+    discriminator,
+    avatar,
+  } = message.author;
 
-  // Prepare common values for SQL insertion
-  const commonValues = [
-    messageId,
+  // Insert user information, avoiding duplicates
+  await db.run(
+    `
+      INSERT INTO users (id, username, discriminator, avatar)
+      VALUES (?, ?, ?, ?)
+      ON CONFLICT(id) DO UPDATE SET
+      username=excluded.username,
+      discriminator=excluded.discriminator,
+      avatar=excluded.avatar;
+    `,
+    [userId, username, discriminator, avatar]
+  );
+
+  // Message information
+  const {
+    id: messageId,
     channelId,
+    guildId,
     createdTimestamp,
     content,
-    contentCleaner(cleanContent, botName),
-    userId,
-    username,
-    discriminator, // Assuming globalName is derived from username and discriminator
+    cleanContent,
     pinned,
     tts,
     nonce,
-    message.attachments && message.attachments.size > 0,
-  ];
+  } = message;
 
-  // Determine if the message is from a DM or a server channel
-  if (!message.channel.guildId) {
-    // This is a DM
-    await db.run(
-      `
+  // Insert message information
+  await db.run(
+    `
+      INSERT INTO messages (id, channel_id, guild_id, created_timestamp, content, clean_content, author_id, user_name, global_name, pinned, tts, nonce, has_attachments)
+      VALUES (?,
+              ?,
+              ?,
+              ?,
+              ?,
+              ?,
+              ?,
+              ?,
+              ?,
+              ?,
+              ?,
+              ?,
+              ?);
+    `,
+    [
+      messageId,
+      channelId,
+      createdTimestamp,
+      content,
+      contentCleaner(cleanContent, botName),
+      userId,
+      username,
+      globalName,
+      pinned,
+      tts,
+      nonce,
+      message.attachments && message.attachments.size > 0, // This will be TRUE if there are attachments, otherwise FALSE
+    ]
+  );
+
+  await db.run(
+    `
       INSERT INTO dms (id, channel_id, created_timestamp, content, clean_content, author_id, user_name, global_name, pinned, tts, nonce, has_attachments)
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
     `,
-      commonValues
-    );
-  } else {
-    // This is a server channel message
-    const guildId = message.channel.guildId;
-    await db.run(
-      `
-      INSERT INTO messages (id, channel_id, guild_id, created_timestamp, content, clean_content, author_id, user_name, global_name, pinned, tts, nonce, has_attachments)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-    `,
-      [guildId, ...commonValues]
-    );
-  }
+    [
+      messageId,
+      channelId,
+      createdTimestamp,
+      content,
+      contentCleaner(cleanContent, botName),
+      userId,
+      username,
+      globalName,
+      pinned,
+      tts,
+      nonce,
+      message.attachments && message.attachments.size > 0, // This will be TRUE if there are attachments, otherwise FALSE
+    ]
+  );
 
   // Check for attachments and insert them with a placeholder for description
   if (message.attachments && message.attachments.size > 0) {
