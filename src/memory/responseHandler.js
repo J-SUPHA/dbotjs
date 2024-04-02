@@ -3,15 +3,25 @@ import { historyFormatter } from "../memory/historyFormatter.js";
 import llmCall from "../chatlogic/llmCall.js";
 import imageCaption from "../tools/imageCaption.js";
 
+function getMessageType(message) {
+  if (message.channel.guildId) {
+    return "channel";
+  } else {
+    return "dm";
+  }
+}
+
 // Revised processMessage function
 export async function processMessage(message, memories, client) {
-  // console.log(message);
+  const channelType = getMessageType(message);
 
   const chatMessages = await historyFormatter(
     message.channelId,
     client.user.username,
-    10
+    10,
+    channelType
   );
+  console.log(chatMessages);
 
   // Determine the userName of the message sender
   const userName = message.author.globalName;
@@ -37,7 +47,6 @@ export async function processMessage(message, memories, client) {
 
   try {
     if (message.guildId) return; // Assuming you want to exit if this is a guild message
-    // console.log("Prompt:", prompt);
 
     const chainResponse = await llmCall(prompt, [`\n${userName}: `]);
 
@@ -46,7 +55,9 @@ export async function processMessage(message, memories, client) {
       return chainResponse;
     } else {
       // Handle cases where no response is received
-      console.log("No response received from chain.call");
+      console.log(
+        "No response received from llm. Pass in a correct API key if you are using OpenAI or else specify the llmBaseUrl in the config if you are using an OpenAI compatible API."
+      );
       return "Error. Check the logs.";
     }
   } catch (error) {

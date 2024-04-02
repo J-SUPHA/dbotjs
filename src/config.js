@@ -1,18 +1,41 @@
 import dotenv from "dotenv";
+import fs from "fs";
+import { fileURLToPath } from "url";
+import path from "path";
+
+// Load environment variables
 dotenv.config();
+
+// Derive the directory name in ES module scope
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Define the path to your config.json file
+const configPath = path.resolve(__dirname, "..", "config.json");
+
+// Read and parse the config.json file
+let configJson = {};
+try {
+  const configFile = fs.readFileSync(configPath, "utf8");
+  configJson = JSON.parse(configFile);
+} catch (error) {
+  console.error("Failed to read or parse config.json:", error);
+}
 
 // Centralized configuration object
 const config = {
   botToken: process.env.BOT_TOKEN,
-  channelIds: process.env.CHANNEL_IDS ? process.env.CHANNEL_IDS.split(",") : [],
+  ignorePatterns: process.env.IGNORE_PATTERNS
+    ? process.env.IGNORE_PATTERNS.split(",")
+    : configJson.ignorePatterns || [],
   llmApiKey: process.env.OPENAI_API_KEY || "sk-blabhablahdosentmatter",
-  llmBaseUrl: process.env.LLM_BASE_URL || "https://api.openai.com/v1", // Default to OpenAI if not specified
-  temperature: process.env.TEMPERATURE || 1, // Default temperature value
-  maxTokens: process.env.MAX_TOKENS || 200, // Default max tokens
-  stop: process.env.STOP_WORDS || [], // Default stop words
-  repetitionPenalty: process.env.REPETITION_PENALTY || 1.3, // Default repetition penalty
-  topP: process.env.TOP_P || 0.9, // Default top p value
-  minP: process.env.MIN_P || 0.06, // Default min p value
+  ...configJson,
+  channelIds: process.env.CHANNEL_IDS
+    ? process.env.CHANNEL_IDS.split(",")
+    : configJson.channelIds || [],
+  stop: process.env.STOP_WORDS
+    ? process.env.STOP_WORDS.split(",")
+    : configJson.stop || [],
 };
 
 export default config;
