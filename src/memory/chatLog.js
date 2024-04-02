@@ -44,6 +44,7 @@ export async function createTables() {
       tts BOOLEAN,
       nonce TEXT,
       has_attachments BOOLEAN,
+      image_caption TEXT,
       FOREIGN KEY (author_id) REFERENCES users (id)
     );
     CREATE TABLE IF NOT EXISTS attachments (

@@ -35,9 +35,11 @@ class Bot {
       CHANNEL: {},
     };
 
-    this.channels = process.env.CHANNEL_IDS.split(",");
-    this.sharedState = {}; // Initialize shared state object
-    // Load and attach event handlers
+    this.channels = process.env.CHANNEL_IDS
+      ? process.env.CHANNEL_IDS.split(",")
+      : [];
+
+    this.sharedState = {};
     this.loadEvents();
   }
 
@@ -88,6 +90,11 @@ class Bot {
   }
 
   start() {
+    // Check if BOT_TOKEN is provided
+    if (!process.env.BOT_TOKEN) {
+      throw new Error("BOT_TOKEN is required in the .env file.");
+    }
+
     // Login to Discord with the app's token
     this.client.login(process.env.BOT_TOKEN);
   }

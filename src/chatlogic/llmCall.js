@@ -1,30 +1,26 @@
-export default async function llmCall(prompt) {
-  const url = "http://api.ausboss.io/v1/completions";
-  const postData = {
-    prompt: prompt,
-    max_tokens: 500,
-    temperature: 1,
-    top_p: 0.9,
+import config from "../config.js";
+import { OpenAI } from "@langchain/openai";
 
-    Preset: "Big O",
-  };
+export default async function llmCall(prompt, stopWords) {
+  const url = "http://api.ausboss.io/v1";
+
+  const llm = new OpenAI({
+    openAIApiKey: config.llmApiKey,
+    configuration: {
+      baseURL: config.llmBaseUrl,
+    },
+    maxTokens: config.maxTokens,
+    temperature: config.temperature,
+    top_p: config.topP,
+    min_p: config.minP,
+    repetition_penalty: config.repetitionPenalty,
+    stop: [...config.stop, ...stopWords],
+  });
 
   try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(postData),
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
-    }
-
-    const data = await response.json();
-    console.log(data);
-    return data;
+    const response = await llm.invoke(prompt);
+    console.log(response);
+    return response;
   } catch (error) {
     console.error("Request failed:", error);
   }

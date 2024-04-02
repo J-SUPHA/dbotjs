@@ -26,5 +26,6 @@ export async function historyFormatter(channel_id, botName, x) {
         `${message.name}: ${removeBotName(botName, message.clean_content)}`
     )
     .join("\n");
+
   return formattedMessages;
 }
