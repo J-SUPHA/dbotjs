@@ -12,7 +12,6 @@ const __dirname = path.dirname(__filename);
 
 // Define the path to your config.json file
 const configPath = path.resolve(__dirname, "..", "config.json");
-
 // Read and parse the config.json file
 let configJson = {};
 try {
@@ -21,21 +20,14 @@ try {
 } catch (error) {
   console.error("Failed to read or parse config.json:", error);
 }
-
 // Centralized configuration object
 const config = {
   botToken: process.env.BOT_TOKEN,
-  ignorePatterns: process.env.IGNORE_PATTERNS
-    ? process.env.IGNORE_PATTERNS.split(",")
-    : configJson.ignorePatterns || [],
+  ignorePatterns: configJson.ignorePatterns || [],
   llmApiKey: process.env.OPENAI_API_KEY || "sk-blabhablahdosentmatter",
   ...configJson,
-  channelIds: process.env.CHANNEL_IDS
-    ? process.env.CHANNEL_IDS.split(",")
-    : configJson.channelIds || [],
-  stop: process.env.STOP_WORDS
-    ? process.env.STOP_WORDS.split(",")
-    : configJson.stop || [],
+  channelIds: configJson.channelIds
+    ? configJson.channelIds.map((id) => String(id))
+    : [],
 };
-
 export default config;

@@ -30,7 +30,7 @@ async function sendMessageInParts(message, content, client) {
 
 export default {
   name: "messagecreate",
-  async execute(message, memories, client) {
+  async execute(message, client) {
     if (
       (message.channel.guildId &&
         !config.channelIds.includes(message.channelId)) ||
@@ -45,7 +45,7 @@ export default {
     console.log(`${message.author.globalName}: ${message.cleanContent}`);
     let messageContent;
     try {
-      messageContent = await processMessage(message, memories, client);
+      messageContent = await processMessage(message, client);
       if (typeof messageContent !== "string" || messageContent.trim() === "") {
         console.log("No valid message content to send.");
         return;

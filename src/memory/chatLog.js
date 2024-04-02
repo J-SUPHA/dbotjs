@@ -34,7 +34,7 @@ export async function createTables() {
       image_caption TEXT,
       FOREIGN KEY (author_id) REFERENCES users (id)
     );
-
+    
     CREATE TABLE IF NOT EXISTS dms (
       id TEXT PRIMARY KEY,
       channel_id TEXT,
@@ -87,25 +87,19 @@ export async function createTables() {
 
 export async function logDetailedMessage(message, client) {
   const botName = client.user.username;
+  const globalName = message.author.globalName;
+
   // User information
-  const {
-    id: userId,
-    username,
-    globalName,
-    discriminator,
-    avatar,
-  } = message.author;
+  const { id: userId, username, discriminator, avatar } = message.author;
 
   // Insert user information, avoiding duplicates
   await db.run(
-    `
-      INSERT INTO users (id, username, discriminator, avatar)
-      VALUES (?, ?, ?, ?)
-      ON CONFLICT(id) DO UPDATE SET
-      username=excluded.username,
-      discriminator=excluded.discriminator,
-      avatar=excluded.avatar;
-    `,
+    `INSERT INTO users (id, username, discriminator, avatar)
+     VALUES (?, ?, ?, ?)
+     ON CONFLICT(id) DO UPDATE SET
+       username=excluded.username,
+       discriminator=excluded.discriminator,
+       avatar=excluded.avatar;`,
     [userId, username, discriminator, avatar]
   );
 
@@ -113,69 +107,62 @@ export async function logDetailedMessage(message, client) {
   const {
     id: messageId,
     channelId,
-    guildId,
+    guildId, // This property distinguishes between DMs and server channel messages
     createdTimestamp,
     content,
-    cleanContent,
+    cleanContent: cleanContentOriginal,
     pinned,
     tts,
     nonce,
+    attachments,
   } = message;
 
-  // Insert message information
-  await db.run(
-    `
-      INSERT INTO messages (id, channel_id, guild_id, created_timestamp, content, clean_content, author_id, user_name, global_name, pinned, tts, nonce, has_attachments)
-      VALUES (?,
-              ?,
-              ?,
-              ?,
-              ?,
-              ?,
-              ?,
-              ?,
-              ?,
-              ?,
-              ?,
-              ?,
-              ?);
-    `,
-    [
-      messageId,
-      channelId,
-      createdTimestamp,
-      content,
-      contentCleaner(cleanContent, botName),
-      userId,
-      username,
-      globalName,
-      pinned,
-      tts,
-      nonce,
-      message.attachments && message.attachments.size > 0, // This will be TRUE if there are attachments, otherwise FALSE
-    ]
-  );
+  // Clean the message content
+  const cleanContent = contentCleaner(cleanContentOriginal, botName);
 
-  await db.run(
-    `
-      INSERT INTO dms (id, channel_id, created_timestamp, content, clean_content, author_id, user_name, global_name, pinned, tts, nonce, has_attachments)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-    `,
-    [
-      messageId,
-      channelId,
-      createdTimestamp,
-      content,
-      contentCleaner(cleanContent, botName),
-      userId,
-      username,
-      globalName,
-      pinned,
-      tts,
-      nonce,
-      message.attachments && message.attachments.size > 0, // This will be TRUE if there are attachments, otherwise FALSE
-    ]
-  );
+  // Determine whether the message is a DM or a server message and insert accordingly
+  if (!guildId) {
+    // DM
+    await db.run(
+      `INSERT INTO dms (id, channel_id, created_timestamp, content, clean_content, author_id, user_name, global_name, pinned, tts, nonce, has_attachments)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+      [
+        messageId,
+        channelId,
+        createdTimestamp,
+        content,
+        cleanContent,
+        userId,
+        username,
+        userName,
+        pinned,
+        tts,
+        nonce,
+        attachments && attachments.size > 0,
+      ]
+    );
+  } else {
+    // Server channel message
+    await db.run(
+      `INSERT INTO messages (id, channel_id, guild_id, created_timestamp, content, clean_content, author_id, user_name, global_name, pinned, tts, nonce, has_attachments)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+      [
+        messageId,
+        channelId,
+        guildId,
+        createdTimestamp,
+        content,
+        cleanContent,
+        userId,
+        username,
+        globalName,
+        pinned,
+        tts,
+        nonce,
+        attachments && attachments.size > 0,
+      ]
+    );
+  }
 
   // Check for attachments and insert them with a placeholder for description
   if (message.attachments && message.attachments.size > 0) {

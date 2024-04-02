@@ -1,14 +1,7 @@
 import {} from "dotenv/config";
 import fs from "fs";
-import {
-  Client,
-  GatewayIntentBits,
-  Partials,
-  Collection,
-  ActivityType,
-} from "discord.js";
-import dotenv from "dotenv";
-dotenv.config();
+import { Client, GatewayIntentBits, Partials } from "discord.js";
+import config from "./src/config.js";
 
 class Bot {
   constructor() {
@@ -30,14 +23,8 @@ class Bot {
         Partials.Reaction,
       ],
     });
-    this.memories = {
-      DM: {},
-      CHANNEL: {},
-    };
 
-    this.channels = process.env.CHANNEL_IDS
-      ? process.env.CHANNEL_IDS.split(",")
-      : [];
+    this.channels = config.channelIds;
 
     this.sharedState = {};
     this.loadEvents();
@@ -67,7 +54,6 @@ class Bot {
             // Dynamically call the function if it exists
             event.default[functionName](
               ...args,
-              this.memories,
               this.client,
               this.sharedState,
               this.channels

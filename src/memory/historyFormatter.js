@@ -29,18 +29,34 @@ export async function historyFormatter(channel_id, botName, x, channelType) {
       throw new Error("Invalid channel type");
     }
 
-    const messages = await db.all(query, channel_id, x);
-    return messages;
+    try {
+      const messages = await db.all(query, channel_id, x);
+      return messages;
+    } catch (error) {
+      console.error(
+        `Error fetching messages for ${channelType} with channel ID ${channel_id}:`,
+        error
+      );
+      throw error; // Rethrow the error after logging
+    }
   }
 
-  const messages = await getLastXMessages(db, channel_id, x, channelType);
-  // Format the messages into a single string
-  const formattedMessages = messages
-    .map(
-      (message) =>
-        `${message.name}: ${removeBotName(botName, message.clean_content)}`
-    )
-    .join("\n");
+  try {
+    const messages = await getLastXMessages(db, channel_id, x, channelType);
+    // Format the messages into a single string
+    const formattedMessages = messages
+      .map(
+        (message) =>
+          `${message.name}: ${removeBotName(botName, message.clean_content)}`
+      )
+      .join("\n");
 
-  return formattedMessages;
+    return formattedMessages;
+  } catch (error) {
+    console.error(
+      `Failed to format messages for ${channelType} with channel ID ${channel_id}:`,
+      error
+    );
+    throw error; // Or return a default value like return "Error formatting messages.";
+  }
 }

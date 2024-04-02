@@ -12,7 +12,7 @@ function getMessageType(message) {
 }
 
 // Revised processMessage function
-export async function processMessage(message, memories, client) {
+export async function processMessage(message, client) {
   const channelType = getMessageType(message);
 
   const chatMessages = await historyFormatter(
@@ -46,8 +46,6 @@ export async function processMessage(message, memories, client) {
   );
 
   try {
-    if (message.guildId) return; // Assuming you want to exit if this is a guild message
-
     const chainResponse = await llmCall(prompt, [`\n${userName}: `]);
 
     // Check for a valid response
