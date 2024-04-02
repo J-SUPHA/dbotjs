@@ -1,0 +1,13 @@
+{
+  "llmBaseUrl": "http://api.endpoing.com/v1",
+  "channelIds": ["123456789", "123456789"],
+  "openAIConfig": {
+    "maxTokens": 200,
+    "temperature": 0.7,
+    "topP": 1,
+    "minP": 0.01,
+    "repetitionPenalty": 1.2,
+    "stop": ["\n"]
+  },
+  "ignorePatterns": [".", "!", "/"]
+}
