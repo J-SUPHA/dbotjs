@@ -8,7 +8,7 @@ export default async function llmCall(prompt, stopWords) {
     ...config.openAIConfig,
     openAIApiKey: config.llmApiKey,
     configuration: {
-      baseURL: config.llmBaseUrl,
+      baseURL: config.llmBaseUrl || "https://api.openai.com/v1",
     },
     baseURL: config.llmBaseUrl,
     stop: stopList,
