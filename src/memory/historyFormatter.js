@@ -1,8 +1,10 @@
 import { db } from "./index.js";
 import removeBotName from "../chatlogic/removeBotName.js";
+import config from "../config.js";
 
-export async function historyFormatter(channel_id, botName, x, channelType) {
-  async function getLastXMessages(db, channel_id, x, channelType) {
+export async function historyFormatter(channel_id, botName, channelType) {
+  const k = config.k;
+  async function getLastXMessages(db, channel_id, k, channelType) {
     let query;
 
     if (channelType === "dm") {
@@ -30,7 +32,7 @@ export async function historyFormatter(channel_id, botName, x, channelType) {
     }
 
     try {
-      const messages = await db.all(query, channel_id, x);
+      const messages = await db.all(query, channel_id, k);
       return messages;
     } catch (error) {
       console.error(
@@ -42,7 +44,7 @@ export async function historyFormatter(channel_id, botName, x, channelType) {
   }
 
   try {
-    const messages = await getLastXMessages(db, channel_id, x, channelType);
+    const messages = await getLastXMessages(db, channel_id, k, channelType);
     // Format the messages into a single string
     const formattedMessages = messages
       .map(

@@ -24,6 +24,7 @@ try {
 const config = {
   botToken: process.env.BOT_TOKEN,
   ignorePatterns: configJson.ignorePatterns || [],
+  k: configJson.K || 15,
   llmApiKey: process.env.OPENAI_API_KEY || "sk-blabhablahdosentmatter",
   ...configJson,
   channelIds: configJson.channelIds

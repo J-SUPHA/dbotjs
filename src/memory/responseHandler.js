@@ -18,10 +18,9 @@ export async function processMessage(message, client) {
   const chatMessages = await historyFormatter(
     message.channelId,
     client.user.username,
-    10,
     channelType
   );
-  console.log(chatMessages);
+  // console.log(chatMessages);
 
   // Determine the userName of the message sender
   const userName = message.author.globalName;
@@ -46,7 +45,10 @@ export async function processMessage(message, client) {
   );
 
   try {
-    const chainResponse = await llmCall(prompt, [`\n${userName}: `]);
+    const chainResponse = await llmCall(prompt, [
+      `\n${userName}: `,
+      `\n${botName}: `,
+    ]);
 
     // Check for a valid response
     if (chainResponse) {

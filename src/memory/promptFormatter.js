@@ -13,5 +13,5 @@ export async function promptFormatter(char, user, userMessage, history) {
   const filePath = "prompt.txt";
   const templateFormatter = await loadAndFormatTemplate(filePath);
   const formattedPrompt = templateFormatter({ char, user, history });
-  return `${formattedPrompt}\n${user}: ${userMessage}\n${char}: `;
+  return `${formattedPrompt}\n${char}: `;
 }

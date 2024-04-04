@@ -8,6 +8,26 @@ function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function splitMessages(content, charLimit) {
+  const parts = [];
+  let currentPart = "";
+
+  content.split(" ").forEach((word) => {
+    if (currentPart.length + word.length + 1 > charLimit) {
+      parts.push(currentPart);
+      currentPart = word;
+    } else {
+      currentPart += `${currentPart.length > 0 ? " " : ""}${word}`;
+    }
+  });
+
+  if (currentPart.length) {
+    parts.push(currentPart);
+  }
+
+  return parts;
+}
+
 // Processes and sends message content, handling Discord's character limit.
 async function sendMessageInParts(message, content, client) {
   const CHAR_LIMIT = 2000;
@@ -42,7 +62,7 @@ export default {
       return; // Ignore messages from bots or commands
     }
     await logDetailedMessage(message, client); // Log the user's message
-    console.log(`${message.author.globalName}: ${message.cleanContent}`);
+    // console.log(`${message.author.globalName}: ${message.cleanContent}`);
     let messageContent;
     try {
       messageContent = await processMessage(message, client);

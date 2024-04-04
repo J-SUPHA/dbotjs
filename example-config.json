@@ -9,5 +9,6 @@
     "repetitionPenalty": 1.2,
     "stop": ["\n"]
   },
-  "ignorePatterns": [".", "!", "/"]
+  "ignorePatterns": [".", "!", "/"],
+  "K": 15
 }
