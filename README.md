@@ -87,7 +87,7 @@ OPENAI_API_KEY=YOUR_OPENAI_API_KEY
 
 This application is designed to work seamlessly with most OpenAI-compatible APIs. It allows users to specify any parameters supported by their selected endpoint.
 
-### Configuring `config.json`
+##  `config.json` Setup
 
 Your `config.json` enables direct, detailed customization for API calls. It supports most parameters for OpenAI and OpenAI-compatible endpoints. This includes, but is not limited to, parameters documented for OpenAI and similar services.
 
@@ -102,7 +102,8 @@ Your `config.json` enables direct, detailed customization for API calls. It supp
     "stop": ["\n"]
     // Specify any parameters supported by your endpoint
   },
-  "ignorePatterns": [".", "!", "/"]
+  "ignorePatterns": [".", "!", "/"],
+  "K": 15
 }
 
 ```
@@ -115,6 +116,7 @@ Your `config.json` enables direct, detailed customization for API calls. It supp
   - `stop`: An array of tokens that signal the language model to stop generating further text. Useful for defining clear end-points in generated content.
 
 - **ignorePatterns**: Defines patterns (typically starting characters) that the bot will ignore. Messages starting with any characters or strings listed here will not trigger a response. Useful for filtering out commands or other bot interactions.
+- **K**: The number of last K interactions to keep in the history context. This can be useful for keeping a sliding window of the most recent interactions, so the buffer does not get too large.
 
 ### Supported Parameters
 
