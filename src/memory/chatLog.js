@@ -134,7 +134,7 @@ export async function logDetailedMessage(message, client) {
         cleanContent,
         userId,
         username,
-        userName,
+        globalName,
         pinned,
         tts,
         nonce,
