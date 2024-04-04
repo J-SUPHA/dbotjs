@@ -89,7 +89,7 @@ This application is designed to work seamlessly with most OpenAI-compatible APIs
 
 ### Configuring `config.json`
 
-Your `config.json` enables direct, detailed customization for API calls. It supports most parameters for OpenAI and OpenAI-compatible endpoints. This includes, but is not limited to, parameters documented for Azure OpenAI and similar services.
+Your `config.json` enables direct, detailed customization for API calls. It supports most parameters for OpenAI and OpenAI-compatible endpoints. This includes, but is not limited to, parameters documented for OpenAI and similar services.
 
 ### Configuration Structure
 
@@ -118,12 +118,12 @@ Your `config.json` enables direct, detailed customization for API calls. It supp
 
 ### Supported Parameters
 
-For those using the OpenAI endpoint or Azure OpenAI, you can specify a wide range of parameters to tailor the API's behavior to your needs. These parameters include, but are not limited to:
+For those using the OpenAI endpoint, you can specify a wide range of parameters to tailor the API's behavior to your needs. These parameters include, but are not limited to:
 - Model selection (`model`)
 - Maximum token count (`maxTokens`)
 - Temperature for randomness control (`temperature`)
 
-A comprehensive list of the langchain.js supported parameters and their functions can be found in the [OpenAI Azure documentation](https://api.python.langchain.com/en/latest/llms/langchain_community.llms.openai.AzureOpenAI.html#).
+A comprehensive list of the langchain.js supported parameters and their functions can be found in the [OpenAI documentation](https://api.python.langchain.com/en/latest/llms/langchain_community.llms.openai.OpenAI.html#langchain_community.llms.openai.OpenAI).
 
 ### Example Configuration
 
