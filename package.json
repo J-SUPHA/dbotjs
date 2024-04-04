@@ -13,12 +13,14 @@
   "license": "MIT",
   "dependencies": {
     "@langchain/openai": "^0.0.21",
+    "axios": "^1.6.8",
     "better-sqlite3": "^9.4.3",
     "discord.js": "^14.11.0",
     "dotenv": "^16.4.5",
     "langchain": "^0.1.28",
     "sharp": "^0.33.3",
-    "sqlite": "^5.1.1"
+    "sqlite": "^5.1.1",
+    "sqlite3": "^5.1.7"
   },
   "imports": {
     "#events/*": "./src/events/*",

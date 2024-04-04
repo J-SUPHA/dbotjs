@@ -2,7 +2,6 @@ import { processMessage } from "../memory/responseHandler.js";
 import { logDetailedMessage } from "../memory/chatLog.js";
 import removeBotName from "../chatlogic/removeBotName.js";
 import config from "../config.js";
-import e from "cors";
 
 function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
