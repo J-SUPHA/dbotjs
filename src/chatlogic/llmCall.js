@@ -15,7 +15,7 @@ export default async function llmCall(prompt, stopWords) {
   };
 
   const llm = new OpenAI(openAIParams);
-  console.log(llm);
+  // console.log(llm);
   // console.log(openAIParams);
 
   try {

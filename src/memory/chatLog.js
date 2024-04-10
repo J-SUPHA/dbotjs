@@ -8,6 +8,45 @@ function contentCleaner(message, botName) {
   }
 }
 
+export async function getLastXMessages(db, channel_id, k, channelType) {
+  let query;
+
+  if (channelType === "dm") {
+    query = `
+      SELECT name, clean_content FROM (
+          SELECT COALESCE(global_name, user_name) AS name, clean_content, created_timestamp
+          FROM dms
+          WHERE channel_id = ?
+          ORDER BY created_timestamp DESC
+          LIMIT ?
+      ) sub ORDER BY created_timestamp ASC
+    `;
+  } else if (channelType === "channel") {
+    query = `
+      SELECT name, clean_content FROM (
+          SELECT COALESCE(global_name, user_name) AS name, clean_content, created_timestamp
+          FROM messages
+          WHERE channel_id = ?
+          ORDER BY created_timestamp DESC
+          LIMIT ?
+      ) sub ORDER BY created_timestamp ASC
+    `;
+  } else {
+    throw new Error("Invalid channel type");
+  }
+
+  try {
+    const messages = await db.all(query, channel_id, k);
+    return messages;
+  } catch (error) {
+    console.error(
+      `Error fetching messages for ${channelType} with channel ID ${channel_id}:`,
+      error
+    );
+    throw error; // Rethrow the error after logging
+  }
+}
+
 export async function createTables() {
   await db.exec(`
     CREATE TABLE IF NOT EXISTS users (

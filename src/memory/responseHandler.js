@@ -3,23 +3,9 @@ import { historyFormatter } from "../memory/historyFormatter.js";
 import llmCall from "../chatlogic/llmCall.js";
 import imageCaption from "../tools/imageCaption.js";
 
-function getMessageType(message) {
-  if (message.channel.guildId) {
-    return "channel";
-  } else {
-    return "dm";
-  }
-}
-
 // Revised processMessage function
 export async function processMessage(message, client) {
-  const channelType = getMessageType(message);
-
-  const chatMessages = await historyFormatter(
-    message.channelId,
-    client.user.username,
-    channelType
-  );
+  const chatMessages = await historyFormatter(message, client);
   // console.log(chatMessages);
 
   // Determine the userName of the message sender
