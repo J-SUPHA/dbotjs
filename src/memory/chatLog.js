@@ -8,6 +8,102 @@ function contentCleaner(message, botName) {
   }
 }
 
+function getMessageType(message) {
+  if (message.channel.guildId) {
+    return "channel";
+  } else {
+    return "dm";
+  }
+}
+
+export async function deleteMessages(interaction) {
+  let query;
+  const channelType = getMessageType(interaction);
+  console.log(channelType);
+  console.log(interaction.channelId);
+
+  if (channelType === "dm") {
+    query = `
+    DELETE FROM dms 
+    WHERE channel_id = ?
+    `;
+  } else if (channelType === "channel") {
+    query = `
+    DELETE FROM messages 
+    WHERE channel_id = ?
+    `;
+  }
+
+  try {
+    // Assuming db.run() resolves with an object that includes a property for the affected row count
+    const result = await db.run(query, interaction.channelId);
+    // The property name might be `changes`, `rowCount`, or something else depending on your DB interface
+    const deletedCount = result.changes; // This is for sqlite3, adjust according to your DB interface
+
+    console.log(`Deleted ${deletedCount} messages.`);
+    return deletedCount;
+  } catch (error) {
+    console.error(
+      `Error deleting messages with channel ID ${interaction.channelId}:`,
+      error
+    );
+    throw error;
+  }
+}
+
+export async function deleteKMessages(interaction, K) {
+  let query;
+  const channelType = getMessageType(interaction);
+  console.log(channelType);
+  console.log(interaction.channelId);
+  // console.log(message.ch);
+
+  if (channelType === "dm") {
+    query = `
+    DELETE FROM dms 
+        WHERE channel_id = ?
+        AND id IN (
+            SELECT id
+            FROM dms
+            WHERE channel_id = ?
+            ORDER BY created_timestamp DESC
+            LIMIT ?
+        )
+    `;
+  } else if (channelType === "channel") {
+    query = `
+    DELETE FROM messages 
+        WHERE channel_id = ?
+        AND id IN (
+            SELECT id
+            FROM dms
+            WHERE channel_id = ?
+            ORDER BY created_timestamp DESC
+            LIMIT ?
+        )
+    `;
+  }
+
+  try {
+    const result = await db.run(
+      query,
+      interaction.channelId,
+      interaction.channelId,
+      K
+    );
+    // The property name might be `changes`, `rowCount`, or something else depending on your DB interface
+    const deletedCount = result.changes; // This is for sqlite3, adjust according to your DB interface
+    console.log(`Deleted ${deletedCount} messages.`);
+    return deletedCount;
+  } catch (error) {
+    console.error(
+      `Error deleting message with ID ${interaction.channelId}:`,
+      error
+    );
+    throw error;
+  }
+}
+
 export async function getLastXMessages(db, channel_id, k, channelType) {
   let query;
 

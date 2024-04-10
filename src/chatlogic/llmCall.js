@@ -2,8 +2,8 @@ import config from "../config.js";
 import { OpenAI } from "@langchain/openai";
 
 export default async function llmCall(prompt, stopWords) {
+  console.log("Prompt:", prompt);
   const stopList = [...config.openAIConfig.stop, ...stopWords];
-  console.log(stopList);
   const openAIParams = {
     ...config.openAIConfig,
     openAIApiKey: config.llmApiKey,
@@ -15,8 +15,6 @@ export default async function llmCall(prompt, stopWords) {
   };
 
   const llm = new OpenAI(openAIParams);
-  // console.log(llm);
-  // console.log(openAIParams);
 
   try {
     const response = await llm.invoke(prompt);

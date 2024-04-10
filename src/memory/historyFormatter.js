@@ -11,6 +11,37 @@ function getMessageType(message) {
   }
 }
 
+// export async function historyFormatter(message, client) {
+//   const k = config.k;
+//   const channelType = getMessageType(message);
+
+//   try {
+//     const messages = await getLastXMessages(
+//       db,
+//       message.channelId,
+//       k,
+//       channelType
+//     );
+//     // Format the messages into a single string
+//     const formattedMessages = messages
+//       .map(
+//         (message) =>
+//           `<|im_start|> ${message.name}\n${removeBotName(
+//             client.user.username,
+//             message.clean_content
+//           )}\n<|im_end|>`
+//       )
+//       .join("\n");
+
+//     return formattedMessages;
+//   } catch (error) {
+//     console.error(
+//       `Failed to format messages for ${channelType} with channel ID ${message.channelId}:`,
+//       error
+//     );
+//     throw error; // Or return a default value like return "Error formatting messages.";
+//   }
+// }
 export async function historyFormatter(message, client) {
   const k = config.k;
   const channelType = getMessageType(message);
@@ -24,13 +55,26 @@ export async function historyFormatter(message, client) {
     );
     // Format the messages into a single string
     const formattedMessages = messages
-      .map(
-        (message) =>
-          `${message.name}: ${removeBotName(
+      .map((msg) => {
+        // Check if message.name is equal to client.user.username
+        if (msg.name === client.user.username) {
+          // Format the message one way if its a message from the bot
+          return `<|START_OF_TURN_TOKEN|><|CHATBOT_TOKEN|>${
+            msg.name
+          }: ${removeBotName(
             client.user.username,
-            message.clean_content
-          )}`
-      )
+            msg.clean_content
+          )}<|END_OF_TURN_TOKEN|>`;
+        } else {
+          // Format the message another way if names are different
+          return `<|START_OF_TURN_TOKEN|><|USER_TOKEN|>${
+            msg.name
+          }: ${removeBotName(
+            client.user.username,
+            msg.clean_content
+          )}<|END_OF_TURN_TOKEN|>`;
+        }
+      })
       .join("\n");
 
     return formattedMessages;
@@ -39,6 +83,6 @@ export async function historyFormatter(message, client) {
       `Failed to format messages for ${channelType} with channel ID ${message.channelId}:`,
       error
     );
-    throw error; // Or return a default value like return "Error formatting messages.";
+    throw error; // Or handle the error more gracefully if preferred
   }
 }
