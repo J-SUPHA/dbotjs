@@ -11,37 +11,6 @@ function getMessageType(message) {
   }
 }
 
-// export async function historyFormatter(message, client) {
-//   const k = config.k;
-//   const channelType = getMessageType(message);
-
-//   try {
-//     const messages = await getLastXMessages(
-//       db,
-//       message.channelId,
-//       k,
-//       channelType
-//     );
-//     // Format the messages into a single string
-//     const formattedMessages = messages
-//       .map(
-//         (message) =>
-//           `<|im_start|> ${message.name}\n${removeBotName(
-//             client.user.username,
-//             message.clean_content
-//           )}\n<|im_end|>`
-//       )
-//       .join("\n");
-
-//     return formattedMessages;
-//   } catch (error) {
-//     console.error(
-//       `Failed to format messages for ${channelType} with channel ID ${message.channelId}:`,
-//       error
-//     );
-//     throw error; // Or return a default value like return "Error formatting messages.";
-//   }
-// }
 export async function historyFormatter(message, client) {
   const k = config.k;
   const channelType = getMessageType(message);

@@ -2,12 +2,13 @@ import { promptFormatter } from "./promptFormatter.js";
 import { historyFormatter } from "../memory/historyFormatter.js";
 import llmCall from "../chatlogic/llmCall.js";
 import imageCaption from "../tools/imageCaption.js";
+import { logDetailedMessage } from "../memory/chatLog.js";
+
+// removing history formatter and adding it to promptformatter
+// changing functions to take message and client instead of individual parameters
 
 // Revised processMessage function
 export async function processMessage(message, client) {
-  const chatMessages = await historyFormatter(message, client);
-  // console.log(chatMessages);
-
   // Determine the userName of the message sender
   const userName = message.author.globalName;
   const botName = client.user.username;
@@ -24,10 +25,9 @@ export async function processMessage(message, client) {
   }
 
   const prompt = await promptFormatter(
-    botName,
-    userName,
-    message.cleanContent + captionResponse,
-    chatMessages
+    message,
+    client,
+    message.cleanContent + captionResponse
   );
 
   try {

@@ -60,8 +60,7 @@ export default {
     ) {
       return; // Ignore messages from bots or commands
     }
-    await logDetailedMessage(message, client); // Log the user's message
-    // console.log(`${message.author.globalName}: ${message.cleanContent}`);
+
     let messageContent;
     try {
       messageContent = await processMessage(message, client);

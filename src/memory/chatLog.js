@@ -1,18 +1,11 @@
 import { db } from "./index.js";
+import getMessageType from "../helpers/messageType.js";
 
 function contentCleaner(message, botName) {
   if (message.startsWith(`@${botName}`)) {
     return message.replace(new RegExp(`@${botName}`, "gi"), "").trim();
   } else {
     return message.replace("@", "").trim();
-  }
-}
-
-function getMessageType(message) {
-  if (message.channel.guildId) {
-    return "channel";
-  } else {
-    return "dm";
   }
 }
 
