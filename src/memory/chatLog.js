@@ -11,7 +11,7 @@ function contentCleaner(message, botName) {
 
 export async function deleteMessages(interaction) {
   let query;
-  const channelType = getMessageType(interaction);
+  const channelType = await getMessageType(interaction);
   console.log(channelType);
   console.log(interaction.channelId);
 
