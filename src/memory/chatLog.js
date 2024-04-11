@@ -46,7 +46,7 @@ export async function deleteMessages(interaction) {
 
 export async function deleteKMessages(interaction, K) {
   let query;
-  const channelType = getMessageType(interaction);
+  const channelType = await getMessageType(interaction);
   console.log(channelType);
   console.log(interaction.channelId);
   // console.log(message.ch);
