@@ -50,22 +50,25 @@ async function sendMessageInParts(message, content, client) {
 export default {
   name: "messagecreate",
   async execute(message, client) {
+    // Determine if the message should be ignored based on several criteria
     if (
+      // Check if the message is from the configured channels
       (message.channel.guildId &&
         !config.channelIds.includes(message.channelId)) ||
-      message.author.bot ||
+      // Check if the message is from this bot itself
+      message.author.username === client.user.username ||
+      // Check if the message starts with any configured ignore patterns
       config.ignorePatterns.some((pattern) =>
         message.cleanContent.startsWith(pattern)
       )
     ) {
-      return; // Ignore messages from bots or commands
+      return; // Ignore messages from unwanted channels, from itself, or starting with ignore patterns
     }
 
     let messageContent;
     try {
       messageContent = await processMessage(message, client);
       if (typeof messageContent !== "string" || messageContent.trim() === "") {
-        console.log("No valid message content to send.");
         return;
       }
     } catch (error) {

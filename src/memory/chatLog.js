@@ -215,9 +215,11 @@ export async function createTables() {
 
 export async function logDetailedMessage(message, client, formattedMessage) {
   const botName = client.user.username;
-  const globalName = message.author.globalName;
 
-  // User information
+  const displayName = message.member
+    ? message.member.displayName
+    : message.author.globalName;
+
   const { id: userId, username, discriminator, avatar } = message.author;
 
   // Insert user information, avoiding duplicates
@@ -262,7 +264,7 @@ export async function logDetailedMessage(message, client, formattedMessage) {
         cleanContent,
         userId,
         username,
-        globalName || username,
+        displayName || username,
         pinned,
         tts,
         nonce,
@@ -283,7 +285,7 @@ export async function logDetailedMessage(message, client, formattedMessage) {
         cleanContent,
         userId,
         username,
-        globalName || username,
+        displayName || username,
         pinned,
         tts,
         nonce,

@@ -1,6 +1,7 @@
 import { readFile } from "fs/promises";
 import { historyFormatter } from "../memory/historyFormatter.js";
 import getCurrentDateFormatted from "../helpers/dateFormatter.js";
+import getNick from "../helpers/getNick.js";
 
 const loadAndFormatTemplate = async (filePath) => {
   try {
@@ -21,7 +22,9 @@ export async function promptFormatter(message, client, formattedMessage) {
     const history = await historyFormatter(message, client);
     const date = getCurrentDateFormatted();
     const filePath = "prompt.txt";
-    const user = message.author.globalName;
+    const user = message.member
+      ? message.member.displayName
+      : message.author.globalName;
     const char = client.user.username;
     const templateFormatter = await loadAndFormatTemplate(filePath);
 
