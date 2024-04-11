@@ -213,7 +213,7 @@ export async function createTables() {
   `);
 }
 
-export async function logDetailedMessage(message, client) {
+export async function logDetailedMessage(message, client, formattedMessage) {
   const botName = client.user.username;
   const globalName = message.author.globalName;
 
@@ -246,7 +246,7 @@ export async function logDetailedMessage(message, client) {
   } = message;
 
   // Clean the message content
-  const cleanContent = contentCleaner(cleanContentOriginal, botName);
+  const cleanContent = contentCleaner(formattedMessage, botName);
 
   // Determine whether the message is a DM or a server message and insert accordingly
   if (!guildId) {
@@ -262,7 +262,7 @@ export async function logDetailedMessage(message, client) {
         cleanContent,
         userId,
         username,
-        globalName,
+        globalName || username,
         pinned,
         tts,
         nonce,
@@ -283,7 +283,7 @@ export async function logDetailedMessage(message, client) {
         cleanContent,
         userId,
         username,
-        globalName,
+        globalName || username,
         pinned,
         tts,
         nonce,

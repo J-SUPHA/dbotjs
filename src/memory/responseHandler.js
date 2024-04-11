@@ -1,13 +1,9 @@
 import { promptFormatter } from "./promptFormatter.js";
-import { historyFormatter } from "../memory/historyFormatter.js";
 import llmCall from "../chatlogic/llmCall.js";
 import imageCaption from "../tools/imageCaption.js";
 import { logDetailedMessage } from "../memory/chatLog.js";
+import getMessageType from "../helpers/messageType.js";
 
-// removing history formatter and adding it to promptformatter
-// changing functions to take message and client instead of individual parameters
-
-// Revised processMessage function
 export async function processMessage(message, client) {
   // Determine the userName of the message sender
   const userName = message.author.globalName;
@@ -21,6 +17,20 @@ export async function processMessage(message, client) {
         // Ensure response is not undefined
         captionResponse += ` [${userName} posts a picture of ${response}]`;
       }
+    }
+  }
+
+  // If the message type is a dm then it will always reply and carry out the next part.
+  // If the message type is a channel then it will only reply if the bot was @mentioned or replied to
+
+  if ((await getMessageType(message)) === "channel") {
+    if (!message.mentions.has(client.user.id) && message.reference === null) {
+      await logDetailedMessage(
+        message,
+        client,
+        message.cleanContent + captionResponse
+      );
+      return;
     }
   }
 
@@ -38,6 +48,11 @@ export async function processMessage(message, client) {
 
     // Check for a valid response
     if (chainResponse) {
+      await logDetailedMessage(
+        message,
+        client,
+        message.cleanContent + captionResponse
+      );
       return chainResponse;
     } else {
       // Handle cases where no response is received

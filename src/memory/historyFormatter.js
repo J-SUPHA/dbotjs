@@ -28,7 +28,7 @@ export async function historyFormatter(message, client) {
         // Check if message.name is equal to client.user.username
         if (msg.name === client.user.username) {
           // Format the message one way if its a message from the bot
-          return `<|START_OF_TURN_TOKEN|><|CHATBOT_TOKEN|>${
+          return `<|START_OF_TURN_TOKEN|><|CHATBOT_TOKEN|> ${
             msg.name
           }: ${removeBotName(
             client.user.username,
@@ -36,7 +36,7 @@ export async function historyFormatter(message, client) {
           )}<|END_OF_TURN_TOKEN|>`;
         } else {
           // Format the message another way if names are different
-          return `<|START_OF_TURN_TOKEN|><|USER_TOKEN|>${
+          return `<|START_OF_TURN_TOKEN|><|USER_TOKEN|> ${
             msg.name
           }: ${removeBotName(
             client.user.username,

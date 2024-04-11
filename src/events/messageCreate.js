@@ -31,17 +31,17 @@ function splitMessages(content, charLimit) {
 async function sendMessageInParts(message, content, client) {
   const CHAR_LIMIT = 2000;
   if (content.length <= CHAR_LIMIT) {
-    const sentMessage = await message.reply(
+    const sentMessage = await message.channel.send(
       removeBotName(client.user.username, content)
     );
-    await logDetailedMessage(sentMessage, client);
+    await logDetailedMessage(sentMessage, client, sentMessage.cleanContent);
   } else {
     const messageParts = splitMessages(content, CHAR_LIMIT);
     for (const part of messageParts) {
-      const sentMessage = await message.reply(
+      const sentMessage = await message.channel.send(
         removeBotName(client.user.username, part)
       );
-      await logDetailedMessage(sentMessage, client);
+      await logDetailedMessage(sentMessage, client, sentMessage.cleanContent);
       await delay(1000); // Wait for 1 second between message parts to avoid rate limiting
     }
   }
