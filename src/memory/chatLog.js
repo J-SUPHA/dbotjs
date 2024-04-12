@@ -69,7 +69,7 @@ export async function deleteKMessages(interaction, K) {
         WHERE channel_id = ?
         AND id IN (
             SELECT id
-            FROM dms
+            FROM messages
             WHERE channel_id = ?
             ORDER BY created_timestamp DESC
             LIMIT ?

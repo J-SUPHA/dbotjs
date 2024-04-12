@@ -7,6 +7,34 @@ function delay(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+async function replaceEmojiNamesWithIds(text, guild) {
+  // Regular expression to find words enclosed in ':'
+  const regex = /:(\w+):/g;
+  let match;
+
+  // If guild is not available, return the text as is
+  if (!guild) {
+    return text;
+  }
+
+  // Loop through all matches in the text
+  while ((match = regex.exec(text)) !== null) {
+    // Get the emoji by name
+    const emoji = guild.emojis.cache.find((e) => e.name === match[1]);
+    if (emoji) {
+      // Determine the prefix based on whether the emoji is animated
+      const prefix = emoji.animated ? "a" : "";
+      // Replace the matched text with the correct emoji format <a:name:id> for animated or <:name:id> for static
+      text = text.replace(
+        `:${match[1]}:`,
+        `<${prefix}:${emoji.name}:${emoji.id}>`
+      );
+    }
+  }
+
+  return text;
+}
+
 function splitMessages(content, charLimit) {
   const parts = [];
   let currentPart = "";
@@ -27,8 +55,9 @@ function splitMessages(content, charLimit) {
   return parts;
 }
 
-// Processes and sends message content, handling Discord's character limit.
+// rus the message through the replaceEmojiNamesWithIds function then return the message
 async function sendMessageInParts(message, content, client) {
+  content = await replaceEmojiNamesWithIds(content, message.guild);
   const CHAR_LIMIT = 2000;
   if (content.length <= CHAR_LIMIT) {
     const sentMessage = await message.channel.send(
@@ -73,6 +102,7 @@ export default {
       }
     } catch (error) {
       console.error("Error processing message:", error);
+
       return; // Exit if processing fails
     }
 

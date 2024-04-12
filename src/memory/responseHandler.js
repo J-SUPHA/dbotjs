@@ -13,9 +13,11 @@ export async function processMessage(message, client) {
   if (message.attachments.size > 0) {
     for (const attachment of message.attachments.values()) {
       const response = await imageCaption(attachment.url); // Removed .split()
+      console.log("Image caption response: ", response);
       if (response) {
         // Ensure response is not undefined
-        captionResponse += ` [${userName} posts a picture of ${response}]`;
+        captionResponse += ` [${userName} posts a picture. Observation: ${response}]`;
+        console.log("Caption response: ", captionResponse);
       }
     }
   }
@@ -24,6 +26,7 @@ export async function processMessage(message, client) {
   // If the message type is a channel then it will only reply if the bot was @mentioned or replied to
 
   if ((await getMessageType(message)) === "channel") {
+    // Check if the bot is not mentioned and there is no message reference
     if (!message.mentions.has(client.user.id) && message.reference === null) {
       await logDetailedMessage(
         message,
@@ -31,6 +34,28 @@ export async function processMessage(message, client) {
         message.cleanContent + captionResponse
       );
       return;
+    }
+
+    // Check if there is a message reference and then fetch the referenced message
+    if (message.reference) {
+      try {
+        const referencedMessage = await message.channel.messages.fetch(
+          message.reference.messageId
+        );
+
+        // Check if the author of the referenced message is not the bot itself
+        if (referencedMessage.author.id !== client.user.id) {
+          await logDetailedMessage(
+            message,
+            client,
+            message.cleanContent + captionResponse
+          );
+          return;
+        }
+      } catch (error) {
+        console.error("Failed to fetch referenced message:", error);
+        // Handle errors (e.g., referenced message does not exist or access is denied)
+      }
     }
   }
 
@@ -41,6 +66,7 @@ export async function processMessage(message, client) {
   );
 
   try {
+    await message.channel.sendTyping();
     const chainResponse = await llmCall(prompt, [
       `\n${userName}: `,
       `\n${botName}: `,

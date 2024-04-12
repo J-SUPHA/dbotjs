@@ -1,7 +1,6 @@
 import { readFile } from "fs/promises";
 import { historyFormatter } from "../memory/historyFormatter.js";
 import getCurrentDateFormatted from "../helpers/dateFormatter.js";
-import getNick from "../helpers/getNick.js";
 
 const loadAndFormatTemplate = async (filePath) => {
   try {

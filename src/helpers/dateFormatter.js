@@ -55,5 +55,7 @@ export default function getCurrentDateFormatted() {
   const ordinalSuffix = getOrdinalSuffix(dateOfMonth);
   const formattedTime = formatTime(hours, minutes);
 
-  return `${formattedTime} on ${dayOfWeek} the ${dateOfMonth}${ordinalSuffix} of ${month} ${year}.`;
+  return `${formattedTime} CST on ${dayOfWeek} the ${dateOfMonth}${ordinalSuffix} of ${month} ${year}`;
 }
+
+console.log(getCurrentDateFormatted());
