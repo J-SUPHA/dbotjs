@@ -57,5 +57,3 @@ export default function getCurrentDateFormatted() {
 
   return `${formattedTime} CST on ${dayOfWeek} the ${dateOfMonth}${ordinalSuffix} of ${month} ${year}`;
 }
-
-console.log(getCurrentDateFormatted());

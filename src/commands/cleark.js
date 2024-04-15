@@ -28,6 +28,9 @@ const invoke = async (interaction) => {
     content: `I deleted ${deletedMessages} messages for you!`,
     ephemeral: true,
   });
+  setTimeout(() => {
+    interaction.deleteReply();
+  }, 5000);
 };
 
 export { create, invoke };

@@ -1,4 +1,4 @@
-import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
+import { SlashCommandBuilder } from "discord.js";
 import { deleteMessages } from "../memory/chatLog.js";
 
 // Creates an Object in JSON with the data required by Discord's API to create a SlashCommand
@@ -16,10 +16,14 @@ const invoke = async (interaction) => {
   const totalDeleted = await deleteMessages(interaction);
 
   // Reply with a confirmation
+  // delete the reply after 10 seconds
   interaction.reply({
-    content: `${totalDeleted} Messages cleared`,
-    ephemeral: false,
+    content: `Deleted ${totalDeleted} messages.`,
+    ephemeral: true,
   });
+  setTimeout(() => {
+    interaction.deleteReply();
+  }, 5000);
 };
 
 export { create, invoke };
