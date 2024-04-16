@@ -2,7 +2,7 @@ import axios from "axios";
 import sharp from "sharp";
 
 export default async function imageCaption(link) {
-  const url = "http://192.168.1.234:5003/llava_caption";
+  const url = "http://47.189.140.220:5003/llava_caption";
 
   // Function to fetch image from URL and convert to base64
   const imageToBase64 = async (imageUrl) => {

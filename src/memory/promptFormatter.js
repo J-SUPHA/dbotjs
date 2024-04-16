@@ -113,3 +113,31 @@ export async function forcedPromptFormatter(interaction) {
     throw error;
   }
 }
+
+export async function toolPromptFormatter(interaction, message) {
+  try {
+    const history = await interactionHistoryFormatter(interaction);
+    const date = getCurrentDateFormatted();
+    const filePath = "prompt.txt";
+    const channeltype = await interactionChannelType(interaction);
+    const user = interaction.member
+      ? interaction.member.displayName
+      : interaction.user.globalName;
+    const char = interaction.client.user.username;
+    const templateFormatter = await loadAndFormatTemplate(filePath);
+
+    const formattedPrompt = templateFormatter({
+      char,
+      user,
+      history,
+      date,
+      channeltype,
+    });
+    const formattedBotMessage = `${message}\n<|im_start|>${char}:`;
+    const finalPrompt = `${formattedPrompt} ${formattedBotMessage}`;
+    return finalPrompt;
+  } catch (error) {
+    console.error("Error formatting prompt:", error);
+    throw error;
+  }
+}

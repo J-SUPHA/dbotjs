@@ -345,3 +345,82 @@ export async function logDetailedMessage(message, client, formattedMessage) {
     );
   });
 }
+
+export async function logDetailedInteraction(interaction, formattedMessage) {
+  const botName = interaction.client.user.username;
+
+  const displayName = interaction.member
+    ? interaction.member.displayName
+    : interaction.author.globalName;
+
+  const { id: userId, username, discriminator, avatar } = interaction.author;
+
+  // Insert user information, avoiding duplicates
+  await db.run(
+    `INSERT INTO users (id, username, discriminator, avatar)
+     VALUES (?, ?, ?, ?)
+     ON CONFLICT(id) DO UPDATE SET
+       username=excluded.username,
+       discriminator=excluded.discriminator,
+       avatar=excluded.avatar;`,
+    [userId, username, discriminator, avatar]
+  );
+
+  // Interaction information
+  const {
+    id: interactionId,
+    channelId,
+    guildId, // This property distinguishes between DMs and server channel messages
+    createdTimestamp,
+    content,
+    cleanContent: cleanContentOriginal,
+    pinned,
+    tts,
+    nonce,
+  } = interaction;
+
+  // Clean the message content
+  const cleanContent = contentCleaner(formattedMessage, botName);
+
+  // Determine whether the message is a DM or a server message and insert accordingly
+  if (!guildId) {
+    // DM
+    await db.run(
+      `INSERT INTO dms (id, channel_id, created_timestamp, content, clean_content, author_id, user_name, global_name, pinned, tts, nonce)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+      [
+        interactionId,
+        channelId,
+        createdTimestamp,
+        content,
+        cleanContent,
+        userId,
+        username,
+        displayName || username,
+        pinned,
+        tts,
+        nonce,
+      ]
+    );
+  } else {
+    // Server channel message
+    await db.run(
+      `INSERT INTO messages (id, channel_id, guild_id, created_timestamp, content, clean_content, author_id, user_name, global_name, pinned, tts, nonce)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+      [
+        interactionId,
+        channelId,
+        guildId,
+        createdTimestamp,
+        content,
+        cleanContent,
+        userId,
+        username,
+        displayName || username,
+        pinned,
+        tts,
+        nonce,
+      ]
+    );
+  }
+}
