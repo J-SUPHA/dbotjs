@@ -15,7 +15,7 @@ const create = () => {
 };
 const invoke = async (interaction) => {
   // Defer the reply; this acknowledges the interaction but doesn't send a visible response
-
+  await interaction.deferReply(); // Ensure the interaction is deferred
   // Generate a prompt using some internal logic or context
   const prompt = await forcedPromptFormatter(interaction); // Assuming this function handles prompt generation
 
