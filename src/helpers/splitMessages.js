@@ -3,22 +3,28 @@ import replaceEmojiNamesWithIds from "../helpers/replaceEmojiNamesWithIds.js";
 import removeBotName from "../chatlogic/removeBotName.js";
 
 function splitMessages(content, charLimit) {
-  const parts = [];
-  let currentPart = "";
+  try {
+    const parts = [];
+    let currentPart = "";
 
-  content.split(" ").forEach((word) => {
-    if (currentPart.length + word.length + 1 > charLimit) {
+    content.split(" ").forEach((word) => {
+      if (currentPart.length + word.length + 1 > charLimit) {
+        parts.push(currentPart);
+        currentPart = word;
+      } else {
+        currentPart += `${currentPart.length > 0 ? " " : ""}${word}`;
+      }
+    });
+
+    if (currentPart.length) {
       parts.push(currentPart);
-      currentPart = word;
-    } else {
-      currentPart += `${currentPart.length > 0 ? " " : ""}${word}`;
     }
-  });
-
-  if (currentPart.length) {
-    parts.push(currentPart);
+    return parts;
+  } catch (error) {
+    console.error("Error splitting messages:", error);
+    // Optionally, return an error message or a default value
+    return []; // Or return an array with a message like ['Error processing your message']
   }
-  return parts;
 }
 
 // rus the message through the replaceEmojiNamesWithIds function then return the message

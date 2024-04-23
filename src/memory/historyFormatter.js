@@ -28,16 +28,16 @@ export async function historyFormatter(message, client) {
         // Check if message.name is equal to client.user.username
         if (msg.name === client.user.username) {
           // Format the message one way if its a message from the bot
-          return `<|im_start|>${msg.name}: ${removeBotName(
+          return `${config.specialTokens.botTurn}${msg.name}: ${removeBotName(
             client.user.username,
             msg.clean_content
-          )}<|im_end|>`;
+          )}${config.specialTokens.endOfTurn}`;
         } else {
-          // Format the message another way if names are different
-          return `<|im_start|>${msg.name}: ${removeBotName(
+          // Format the message another way if names are different: aka a user message
+          return `${config.specialTokens.userTurn}${msg.name}: ${removeBotName(
             client.user.username,
             msg.clean_content
-          )}<|im_end|>`;
+          )}${config.specialTokens.endOfTurn}`;
         }
       })
       .join("\n");
@@ -70,16 +70,16 @@ export async function interactionHistoryFormatter(interaction) {
         // Check if message.name is equal to client.user.username
         if (msg.name === interaction.client.user.username) {
           // Format the message one way if its a message from the bot
-          return `<|im_start|>${msg.name}: ${removeBotName(
+          return `${config.specialTokens.botTurn}${msg.name}: ${removeBotName(
             interaction.client.user.username,
             msg.clean_content
-          )}<|im_end|>`;
+          )}${config.specialTokens.endOfTurn}`;
         } else {
           // Format the message another way if names are different
-          return `<|im_start|>${msg.name}: ${removeBotName(
+          return `${config.specialTokens.userTurn}${msg.name}: ${removeBotName(
             interaction.client.user.username,
             msg.clean_content
-          )}<|im_end|>`;
+          )}${config.specialTokens.endOfTurn}`;
         }
       })
       .join("\n");

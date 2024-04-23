@@ -24,8 +24,6 @@ class Bot {
       ],
     });
 
-    this.channels = config.channelIds;
-
     this.sharedState = {};
     this.loadEvents();
   }

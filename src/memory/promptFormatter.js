@@ -4,6 +4,7 @@ import {
   historyFormatter,
 } from "../memory/historyFormatter.js";
 import getCurrentDateFormatted from "../helpers/dateFormatter.js";
+import config from "../config.js";
 
 async function channelType(message) {
   const user = message.member
@@ -14,9 +15,9 @@ async function channelType(message) {
     const guild = await message.client.guilds.fetch(message.channel.guildId);
     const channel = guild.channels.cache.get(message.channel.id);
 
-    return "the server " + guild.name + " in the channel " + channel.name;
+    return "Server - " + guild.name + " Channel - " + channel.name;
   } else {
-    return "a DM with " + user;
+    return user + "'s DMs";
   }
 }
 
@@ -38,7 +39,7 @@ async function interactionChannelType(interaction) {
       channel.name
     );
   } else {
-    return "a DM with " + user;
+    return "a private DM with " + user;
   }
 }
 
@@ -75,9 +76,9 @@ export async function promptFormatter(message, client, formattedMessage) {
       date,
       channeltype,
     });
-    const formattedUserMessage = `<|im_start|>${user}: ${formattedMessage}<|im_end|>`;
-    const formattedBotMessage = `<|im_start|>${char}:`;
-    const finalPrompt = `${formattedPrompt} ${formattedUserMessage}\n${formattedBotMessage}`;
+    const formattedUserMessage = `${config.specialTokens.userTurn}${user}: ${formattedMessage}${config.specialTokens.endOfTurn}`;
+    const formattedBotMessage = `${config.specialTokens.botTurn}${char}:`;
+    const finalPrompt = `${formattedPrompt}\n${formattedUserMessage}\n${formattedBotMessage}`;
     return finalPrompt;
   } catch (error) {
     console.error("Error formatting prompt:", error);
@@ -105,36 +106,8 @@ export async function forcedPromptFormatter(interaction) {
       date,
       channeltype,
     });
-    const formattedBotMessage = `<|im_start|>${char}:`;
-    const finalPrompt = `${formattedPrompt} ${formattedBotMessage}`;
-    return finalPrompt;
-  } catch (error) {
-    console.error("Error formatting prompt:", error);
-    throw error;
-  }
-}
-
-export async function toolPromptFormatter(interaction, message) {
-  try {
-    const history = await interactionHistoryFormatter(interaction);
-    const date = getCurrentDateFormatted();
-    const filePath = "prompt.txt";
-    const channeltype = await interactionChannelType(interaction);
-    const user = interaction.member
-      ? interaction.member.displayName
-      : interaction.user.globalName;
-    const char = interaction.client.user.username;
-    const templateFormatter = await loadAndFormatTemplate(filePath);
-
-    const formattedPrompt = templateFormatter({
-      char,
-      user,
-      history,
-      date,
-      channeltype,
-    });
-    const formattedBotMessage = `${message}\n<|im_start|>${char}:`;
-    const finalPrompt = `${formattedPrompt} ${formattedBotMessage}`;
+    const formattedBotMessage = `${config.specialTokens.botTurn}${char}:`;
+    const finalPrompt = `${formattedPrompt}\n${formattedBotMessage}`;
     return finalPrompt;
   } catch (error) {
     console.error("Error formatting prompt:", error);

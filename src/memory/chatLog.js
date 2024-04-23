@@ -149,7 +149,7 @@ export async function createTables() {
       author_id TEXT,
       user_name TEXT,
       global_name TEXT,
-      pinned BOOLEAN,
+      type BOOLEAN,
       tts BOOLEAN,
       nonce TEXT,
       has_attachments BOOLEAN,
@@ -166,7 +166,7 @@ export async function createTables() {
       author_id TEXT,
       user_name TEXT,
       global_name TEXT,
-      pinned BOOLEAN,
+      type BOOLEAN,
       tts BOOLEAN,
       nonce TEXT,
       has_attachments BOOLEAN,
@@ -187,6 +187,8 @@ export async function createTables() {
 export async function logDetailedMessage(message, client, formattedMessage) {
   const botName = client.user.username;
 
+  const type = "message";
+
   const displayName = message.member
     ? message.member.displayName
     : message.author.globalName;
@@ -201,7 +203,6 @@ export async function logDetailedMessage(message, client, formattedMessage) {
     createdTimestamp,
     content,
     cleanContent: cleanContentOriginal,
-    pinned,
     tts,
     nonce,
     attachments,
@@ -214,7 +215,7 @@ export async function logDetailedMessage(message, client, formattedMessage) {
   if (!guildId) {
     // DM
     await db.run(
-      `INSERT INTO dms (id, channel_id, created_timestamp, content, clean_content, author_id, user_name, global_name, pinned, tts, nonce, has_attachments)
+      `INSERT INTO dms (id, channel_id, created_timestamp, content, clean_content, author_id, user_name, global_name, type, tts, nonce, has_attachments)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
       [
         messageId,
@@ -225,7 +226,7 @@ export async function logDetailedMessage(message, client, formattedMessage) {
         userId,
         username,
         displayName || username,
-        pinned,
+        type,
         tts,
         nonce,
         attachments && attachments.size > 0,
@@ -234,7 +235,7 @@ export async function logDetailedMessage(message, client, formattedMessage) {
   } else {
     // Server channel message
     await db.run(
-      `INSERT INTO messages (id, channel_id, guild_id, created_timestamp, content, clean_content, author_id, user_name, global_name, pinned, tts, nonce, has_attachments)
+      `INSERT INTO messages (id, channel_id, guild_id, created_timestamp, content, clean_content, author_id, user_name, global_name, type, tts, nonce, has_attachments)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
       [
         messageId,
@@ -246,7 +247,7 @@ export async function logDetailedMessage(message, client, formattedMessage) {
         userId,
         username,
         displayName || username,
-        pinned,
+        type,
         tts,
         nonce,
         attachments && attachments.size > 0,
@@ -273,6 +274,8 @@ export async function logDetailedMessage(message, client, formattedMessage) {
 export async function logDetailedInteraction(interaction, string) {
   const botName = interaction.client.user.username;
 
+  const type = "interaction";
+
   const displayName = interaction.member
     ? interaction.member.displayName
     : interaction.user.globalName;
@@ -285,7 +288,6 @@ export async function logDetailedInteraction(interaction, string) {
     channelId,
     guildId, // This property distinguishes between DMs and server channel messages
     createdTimestamp,
-    pinned,
     tts,
     nonce,
     attachments,
@@ -293,12 +295,14 @@ export async function logDetailedInteraction(interaction, string) {
 
   // Clean the message content
   const cleanContent = contentCleaner(string, botName);
+  // if cleanContent is empty, return
+  if (!cleanContent) return;
 
   // Determine whether the message is a DM or a server message and insert accordingly
   if (!guildId) {
     // DM
     await db.run(
-      `INSERT INTO dms (id, channel_id, created_timestamp, content, clean_content, author_id, user_name, global_name, pinned, tts, nonce, has_attachments)
+      `INSERT INTO dms (id, channel_id, created_timestamp, content, clean_content, author_id, user_name, global_name, type, tts, nonce, has_attachments)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
       [
         interactionId,
@@ -309,7 +313,7 @@ export async function logDetailedInteraction(interaction, string) {
         userId,
         username,
         displayName || username,
-        pinned,
+        type,
         tts,
         nonce,
         attachments && attachments.size > 0,
@@ -318,7 +322,7 @@ export async function logDetailedInteraction(interaction, string) {
   } else {
     // Server channel message
     await db.run(
-      `INSERT INTO messages (id, channel_id, guild_id, created_timestamp, content, clean_content, author_id, user_name, global_name, pinned, tts, nonce, has_attachments)
+      `INSERT INTO messages (id, channel_id, guild_id, created_timestamp, content, clean_content, author_id, user_name, global_name, type, tts, nonce, has_attachments)
        VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);`,
       [
         interactionId,
@@ -330,7 +334,7 @@ export async function logDetailedInteraction(interaction, string) {
         userId,
         username,
         displayName || username,
-        pinned,
+        type,
         tts,
         nonce,
         attachments && attachments.size > 0,

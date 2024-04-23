@@ -2,6 +2,7 @@ import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
 import { logDetailedInteraction } from "../memory/chatLog.js";
 import llmCall from "../chatlogic/llmCall.js";
 import sendMessageInParts from "../helpers/splitMessages.js";
+import config from "../config.js";
 
 // Creates an Object in JSON with the data required by Discord's API to create a SlashCommand
 const create = () => {
@@ -26,14 +27,15 @@ const invoke = (interaction) => {
   const displayName = interaction.member
     ? interaction.member.displayName
     : interaction.user.globalName;
-  const instructTemplate = `<|im_start|>system
-You are an AI assistant. Write a response that appropriately completes the request.<|im_end|>
-<|im_start|>user
-${example}<|im_end|>
-<|im_start|>assistant`;
+  const instructTemplate = `${config.specialTokens.system}You are an AI assistant. Write a response that appropriately completes the request.${config.specialTokens.endOfTurn}
+${config.specialTokens.userTurn}
+${example}${config.specialTokens.endOfTurn}
+${config.specialTokens.botTurn}\n`;
 
   const handleInteraction = async () => {
-    const response = await llmCall(instructTemplate, ["<|im_end|>"]);
+    const response = await llmCall(instructTemplate, [
+      `${config.specialTokens.endOfTurn}`,
+    ]);
     const actionString = `Used the instruct command: '${example}'`;
     await logDetailedInteraction(interaction, actionString);
     sendMessageInParts(interaction, response);
