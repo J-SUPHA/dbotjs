@@ -1,5 +1,5 @@
 import { promises as fs } from "fs";
-import { createTables } from "#memory/chatLog";
+import { createTables } from "#memory/createdb";
 
 async function execute(client, sharedState, channels) {
   const commandsDir = "./src/commands";

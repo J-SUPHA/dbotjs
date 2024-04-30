@@ -20,31 +20,31 @@ function formatTime(hours, minutes) {
   return `${hours}:${minutes} ${ampm}`;
 }
 
-export default function getCurrentDateFormatted() {
-  const days = [
-    "Sunday",
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-  ];
-  const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
-  ];
+const days = [
+  "Sunday",
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+];
+const months = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 
+export function getCurrentDateFormatted() {
   const now = new Date();
   const dayOfWeek = days[now.getDay()];
   const dateOfMonth = now.getDate();
@@ -56,4 +56,18 @@ export default function getCurrentDateFormatted() {
   const formattedTime = formatTime(hours, minutes);
 
   return `${formattedTime} CST on ${dayOfWeek} the ${dateOfMonth}${ordinalSuffix} of ${month} ${year}`;
+}
+
+export function timeStampFormat(timeStamp) {
+  const now = new Date(timeStamp * 1000);
+  const dayOfWeek = days[now.getDay()];
+  const dateOfMonth = now.getDate();
+  const month = months[now.getMonth()];
+  const year = now.getFullYear();
+  const hours = now.getHours();
+  const minutes = now.getMinutes();
+  const ordinalSuffix = getOrdinalSuffix(dateOfMonth);
+  const formattedTime = formatTime(hours, minutes);
+
+  return `${formattedTime} ${dayOfWeek} ${month} ${dateOfMonth}${ordinalSuffix}`;
 }

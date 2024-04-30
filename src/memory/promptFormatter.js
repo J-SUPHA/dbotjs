@@ -2,8 +2,8 @@ import { readFile } from "fs/promises";
 import {
   interactionHistoryFormatter,
   historyFormatter,
-} from "../memory/historyFormatter.js";
-import getCurrentDateFormatted from "../helpers/dateFormatter.js";
+} from "../memory/history-formatter.js";
+import { getCurrentDateFormatted } from "../helpers/dateFormatter.js";
 import config from "../config.js";
 
 async function channelType(message) {

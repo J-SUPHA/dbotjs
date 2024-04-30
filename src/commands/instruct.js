@@ -27,15 +27,12 @@ const invoke = (interaction) => {
   const displayName = interaction.member
     ? interaction.member.displayName
     : interaction.user.globalName;
-  const instructTemplate = `${config.specialTokens.system}You are an AI assistant. Write a response that appropriately completes the request.${config.specialTokens.endOfTurn}
-${config.specialTokens.userTurn}
+  const instructTemplate = `${config.specialTokens.system}You are an AI assistant. Write a response that appropriately completes the request.${config.specialTokens.endOfTurn}${config.specialTokens.userTurn}
 ${example}${config.specialTokens.endOfTurn}
 ${config.specialTokens.botTurn}\n`;
 
   const handleInteraction = async () => {
-    const response = await llmCall(instructTemplate, [
-      `${config.specialTokens.endOfTurn}`,
-    ]);
+    const response = await llmCall(instructTemplate, []);
     const actionString = `Used the instruct command: '${example}'`;
     await logDetailedInteraction(interaction, actionString);
     sendMessageInParts(interaction, response);

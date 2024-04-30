@@ -10,7 +10,7 @@ function delay(ms) {
 }
 
 async function sendMessageInParts(message, content, client) {
-  console.log(message);
+  // console.log(message);
   content = await replaceEmojiNamesWithIds(content, message.guild);
   const CHAR_LIMIT = 2000;
 
