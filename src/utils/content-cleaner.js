@@ -1,4 +1,4 @@
-export function contentCleaner(message, botName) {
+export default function contentCleaner(message, botName) {
   if (message.startsWith(`@${botName}`)) {
     return message.replace(new RegExp(`@${botName}`, "gi"), "").trim();
   } else {

@@ -2,14 +2,7 @@ import { db } from "./index.js";
 import removeBotName from "../chatlogic/removeBotName.js";
 import { getLastXMessages } from "./chatLog.js";
 import config from "../config.js";
-
-function getMessageType(message) {
-  if (message.channel.guildId) {
-    return "channel";
-  } else {
-    return "dm";
-  }
-}
+import getMessageType from "../utils/message-type.js";
 
 export async function historyFormatter(message, client) {
   const k = config.k;

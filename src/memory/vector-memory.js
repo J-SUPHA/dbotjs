@@ -1,7 +1,8 @@
 import { Chroma } from "@langchain/community/vectorstores/chroma";
 import { OllamaEmbeddings } from "@langchain/community/embeddings/ollama";
 import { Document } from "langchain/document";
-import { contentCleaner } from "../utils/content-cleaner";
+import contentCleaner from "../utils/content-cleaner.js";
+2;
 
 export async function logDetailedMessageVector(
   message,
@@ -35,7 +36,7 @@ export async function logDetailedMessageVector(
   const cleanContent = contentCleaner(formattedMessage, botName);
 
   const doc = new Document({
-    pageContent: `${displayName}: ${cleanContent}`,
+    pageContent: `${cleanContent}`,
     metadata: {
       id: messageId,
       source: "discord",

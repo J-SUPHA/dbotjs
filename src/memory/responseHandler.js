@@ -2,7 +2,7 @@ import { promptFormatter } from "./promptFormatter.js";
 import llmCall from "../chatlogic/llmCall.js";
 import imageCaption from "../tools/imageCaption.js";
 import { logDetailedMessage } from "../memory/chatLog.js";
-import getMessageType from "../helpers/messageType.js";
+import getMessageType from "../utils/message-type.js";
 
 export async function processMessage(message, client) {
   // Determine the userName of the message sender

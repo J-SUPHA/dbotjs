@@ -1,7 +1,7 @@
 import { db } from "./index.js";
-import getMessageType from "../helpers/messageType.js";
 import { logDetailedMessageVector } from "./vector-memory.js";
-import { contentCleaner } from "../utils/content-cleaner";
+import contentCleaner from "../utils/content-cleaner.js";
+import getMessageType from "../utils/message-type.js";
 
 export async function deleteMessages(interaction) {
   let query;
