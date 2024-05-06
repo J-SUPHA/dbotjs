@@ -1,13 +1,7 @@
 import { db } from "./index.js";
 import getMessageType from "../helpers/messageType.js";
-
-function contentCleaner(message, botName) {
-  if (message.startsWith(`@${botName}`)) {
-    return message.replace(new RegExp(`@${botName}`, "gi"), "").trim();
-  } else {
-    return message.replace("@", "").trim();
-  }
-}
+import { logDetailedMessageVector } from "./vector-memory.js";
+import { contentCleaner } from "../utils/content-cleaner";
 
 export async function deleteMessages(interaction) {
   let query;
@@ -137,6 +131,8 @@ export async function getLastXMessages(db, channel_id, k, channelType) {
 }
 
 export async function logDetailedMessage(message, client, formattedMessage) {
+  await logDetailedMessageVector(message, client, formattedMessage);
+
   const botName = client.user.username;
 
   const type = "message";

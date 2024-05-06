@@ -22,12 +22,11 @@ export async function processMessage(message, client) {
     }
   }
 
-  // If the message type is a dm then it will always reply and carry out the next part.
-  // If the message type is a channel then it will only reply if the bot was @mentioned or replied to
-
+  // Check if the message is a channel message
   if ((await getMessageType(message)) === "channel") {
     // Check if the bot is not mentioned and there is no message reference
     if (!message.mentions.has(client.user.id) && message.reference === null) {
+      // Log the message and return
       await logDetailedMessage(
         message,
         client,
@@ -64,7 +63,7 @@ export async function processMessage(message, client) {
     client,
     message.cleanContent + captionResponse
   );
-
+  // Call the llm with the prompt
   try {
     await message.channel.sendTyping();
     const chainResponse = await llmCall(prompt, [
