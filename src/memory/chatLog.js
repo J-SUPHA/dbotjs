@@ -131,7 +131,11 @@ export async function getLastXMessages(db, channel_id, k, channelType) {
 }
 
 export async function logDetailedMessage(message, client, formattedMessage) {
-  await logDetailedMessageVector(message, client, formattedMessage);
+  try {
+    await logDetailedMessageVector(message, client, formattedMessage);
+  } catch (error) {
+    console.error("Error logging detailed message vector:", error);
+  }
 
   const botName = client.user.username;
 

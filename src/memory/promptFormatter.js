@@ -76,6 +76,7 @@ export async function promptFormatter(message, client, formattedMessage) {
       date,
       channeltype,
     });
+
     const formattedUserMessage = `${config.specialTokens.userTurn}${user}: ${formattedMessage}${config.specialTokens.endOfTurn}`;
     const formattedBotMessage = `${config.specialTokens.botTurn}${char}:`;
     const finalPrompt = `${formattedPrompt}\n${formattedUserMessage}\n${formattedBotMessage}`;

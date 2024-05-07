@@ -63,6 +63,7 @@ export async function processMessage(message, client) {
     client,
     message.cleanContent + captionResponse
   );
+
   // Call the llm with the prompt
   try {
     await message.channel.sendTyping();
