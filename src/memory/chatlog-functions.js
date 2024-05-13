@@ -89,7 +89,7 @@ export async function deleteKMessages(interaction, K) {
   }
 }
 
-export async function getLastXMessages(db, channel_id, k, channelType) {
+export async function getLastXMessages(channel_id, k, channelType) {
   let query;
 
   if (channelType === "dm") {

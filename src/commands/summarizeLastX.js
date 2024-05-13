@@ -2,6 +2,7 @@ import { getLastXMessages } from "../memory/chatlog-functions.js";
 import { SlashCommandBuilder } from "discord.js";
 import { Ollama } from "@langchain/community/llms/ollama";
 import { PromptTemplate } from "@langchain/core/prompts";
+import config from "../config.js";
 
 const ollamaLlm = new Ollama({
   baseUrl: "http://localhost:11434",
@@ -25,7 +26,14 @@ const create = () => {
 
 const invoke = async (interaction) => {
   const amount = interaction.options.getInteger("amount");
-  const messages = await getLastXMessages(interaction, amount);
+  const k = config.k;
+  const channelType = getMessageType(interaction);
+
+  const messages = await getLastXMessages(
+    interaction.channelId,
+    amount,
+    channelType
+  );
 
   const questionTemplate = PromptTemplate.fromTemplate(`
       You are Tensor. Your job is to take your previous chat messages from the current conversation and summarize them so you can remember the conversation. Make sure to include the names of the other people in the conversation and the main points of the conversation. Strictly use the information provided in the chat messages. Just write the summary, do not start the message with an introduction or acknowledgment of this request.
