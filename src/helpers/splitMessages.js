@@ -1,5 +1,5 @@
 import { logDetailedMessage } from "../memory/chatLog.js";
-import replaceEmojiNamesWithIds from "../helpers/replaceEmojiNamesWithIds.js";
+import { replaceEmojiNamesWithIds } from "../helpers/utilities.js";
 import removeBotName from "../chatlogic/removeBotName.js";
 
 // Helper function to create a delay

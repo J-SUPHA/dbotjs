@@ -1,6 +1,6 @@
 import { db } from "./index.js";
 import { logDetailedMessageVector } from "./vector-memory.js";
-import contentCleaner from "../utils/content-cleaner.js";
+import { contentCleaner } from "../helpers/utilities.js";
 
 // try {
 //   await logDetailedMessageVector(message, client, formattedMessage);
