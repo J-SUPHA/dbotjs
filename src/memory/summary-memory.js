@@ -1,0 +1,1 @@
+const instructTemplate = `${config.specialTokens.system}You are an AI assistant. Write a response that appropriately completes the request.${config.specialTokens.endOfTurn}${config.specialTokens.userTurn}

@@ -38,7 +38,7 @@ ${config.specialTokens.botTurn}\n`;
     sendMessageInParts(interaction, response);
   };
 
-  handleInteraction();
+  handleInteraction(); // Add await here
 
   const embed = new EmbedBuilder()
     .setColor(0x0099ff) // Set a color for the embed

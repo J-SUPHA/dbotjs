@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from "discord.js";
-import { deleteMessages } from "../memory/chatLog.js";
+import { deleteMessages } from "../memory/chatlog-functions.js";
 
 // Creates an Object in JSON with the data required by Discord's API to create a SlashCommand
 const create = () => {

@@ -1,14 +1,18 @@
 import { db } from "./index.js";
 import removeBotName from "../chatlogic/removeBotName.js";
-import { getLastXMessages } from "./chatLog.js";
+import { getLastXMessages } from "./chatlog-functions.js";
 import config from "../config.js";
 import getMessageType from "../utils/message-type.js";
-import retrieveVectorSearch from "./vector-memory.js";
+import retrieveVectorSearch from "./vector-search.js";
 export async function historyFormatter(message, client) {
   const k = config.k;
   const channelType = getMessageType(message);
-  // vector memory is retrieveVectorSearch or ""
-  const vectorMemory = await retrieveVectorSearch(message);
+
+  try {
+    const vectorMemory = await retrieveVectorSearch(message);
+  } catch (error) {
+    const vectorMemory = "";
+  }
 
   try {
     const messages = await getLastXMessages(

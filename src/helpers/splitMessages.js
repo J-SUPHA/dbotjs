@@ -2,6 +2,11 @@ import { logDetailedMessage } from "../memory/chatLog.js";
 import replaceEmojiNamesWithIds from "../helpers/replaceEmojiNamesWithIds.js";
 import removeBotName from "../chatlogic/removeBotName.js";
 
+// Helper function to create a delay
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 function splitMessages(content, charLimit) {
   try {
     const parts = [];
@@ -29,6 +34,8 @@ function splitMessages(content, charLimit) {
 
 // rus the message through the replaceEmojiNamesWithIds function then return the message
 export default async function sendMessageInParts(interaction, content) {
+  console.log("interactoin", interaction);
+  console.log("content", content);
   content = await replaceEmojiNamesWithIds(content, interaction.guild);
   const CHAR_LIMIT = 2000;
   if (content.length <= CHAR_LIMIT) {
