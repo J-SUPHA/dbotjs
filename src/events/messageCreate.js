@@ -3,7 +3,6 @@ import { logDetailedMessage } from "../memory/chatLog.js";
 import removeBotName from "../chatlogic/removeBotName.js";
 import config from "../config.js";
 import { replaceEmojiNamesWithIds } from "../helpers/utilities.js";
-// import splitMessages from "../helpers/splitMessages.js";
 import { splitMessages, delay } from "../helpers/utilities.js"; // Moved delay and splitMessages into a utilities file
 
 const CHAR_LIMIT = 2000;
@@ -44,7 +43,7 @@ export default {
 
     try {
       const messageContent = await processMessage(message, client);
-      if (!messageContent.trim()) {
+      if (!messageContent) {
         return;
       }
       await sendMessageInParts(message, messageContent, client);

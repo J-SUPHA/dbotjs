@@ -34,8 +34,8 @@ function splitMessages(content, charLimit) {
 
 // rus the message through the replaceEmojiNamesWithIds function then return the message
 export default async function sendMessageInParts(interaction, content) {
-  console.log("interactoin", interaction);
-  console.log("content", content);
+  // console.log("interactoin", interaction);
+  // console.log("content", content);
   content = await replaceEmojiNamesWithIds(content, interaction.guild);
   const CHAR_LIMIT = 2000;
   if (content.length <= CHAR_LIMIT) {

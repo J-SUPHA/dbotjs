@@ -4,8 +4,8 @@ import { db } from "./index.js";
 export async function deleteMessages(interaction) {
   let query;
   const channelType = await getMessageType(interaction);
-  console.log(channelType);
-  console.log(interaction.channelId);
+  // console.log(channelType);
+  // console.log(interaction.channelId);
 
   if (channelType === "dm") {
     query = `
@@ -39,8 +39,8 @@ export async function deleteMessages(interaction) {
 export async function deleteKMessages(interaction, K) {
   let query;
   const channelType = await getMessageType(interaction);
-  console.log(channelType);
-  console.log(interaction.channelId);
+  // console.log(channelType);
+  // console.log(interaction.channelId);
   // console.log(message.ch);
 
   if (channelType === "dm") {

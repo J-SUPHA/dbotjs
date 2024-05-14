@@ -24,7 +24,14 @@ export async function processMessage(message, client) {
     client,
     message.cleanContent + captionResponse
   );
-  return await handleResponse(message, prompt, userName, botName, client);
+  return await handleResponse(
+    message,
+    prompt,
+    userName,
+    botName,
+    client,
+    captionResponse
+  );
 }
 
 async function handleAttachments(message, userName) {
@@ -43,11 +50,20 @@ async function handleAttachments(message, userName) {
 function shouldLogMessage(message, client) {
   return (
     (!message.mentions.has(client.user.id) && !message.reference) ||
-    (message.reference && message.reference.author.id !== client.user.id)
+    (message.reference &&
+      message.reference.author &&
+      message.reference.author.id !== client.user.id)
   );
 }
 
-async function handleResponse(message, prompt, userName, botName, client) {
+async function handleResponse(
+  message,
+  prompt,
+  userName,
+  botName,
+  client,
+  captionResponse
+) {
   try {
     await message.channel.sendTyping();
     const response = await llmCall(prompt, [
@@ -58,7 +74,7 @@ async function handleResponse(message, prompt, userName, botName, client) {
       await logDetailedMessage(
         message,
         client,
-        message.cleanContent + response
+        message.cleanContent + captionResponse + response
       );
       return response;
     } else {

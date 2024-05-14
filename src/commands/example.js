@@ -18,7 +18,7 @@ const create = () => {
 // Called by the interactionCreate event listener when the corresponding command is invoked
 // invoke will do nothing then delete the message after 1 minute
 const invoke = (interaction) => {
-  console.log(interaction);
+  // console.log(interaction);
   const example = interaction.options.getString("example");
   const displayName = interaction.member
     ? interaction.member.displayName

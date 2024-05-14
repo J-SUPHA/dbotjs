@@ -4,7 +4,7 @@ import { SlashCommandBuilder } from "discord.js";
 const create = () => {
   const command = new SlashCommandBuilder()
     .setName("ping")
-    .setDescription("Replys with Pong!")
+    .setDescription("Replies with Pong!")
     .addUserOption((option) =>
       option.setName("user").setDescription("Shall I greet a user?")
     );
