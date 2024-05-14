@@ -18,11 +18,7 @@ export async function summaryFormatter(message, client) {
 
   try {
     // Fetching k + 10 messages to get the 10 messages before the last k messages
-    const messages = await getLastXMessages(
-      message.channelId,
-      k + 10,
-      channelType
-    );
+    const messages = await getLastXMessages(message, k + 10);
 
     if (messages.length > k) {
       // Select the 10 messages before the last k messages

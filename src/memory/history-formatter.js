@@ -15,7 +15,7 @@ export async function historyFormatter(message, client) {
   }
 
   try {
-    const messages = await getLastXMessages(message.channelId, k, channelType);
+    const messages = await getLastXMessages(message, k);
     // Format the messages into a single string
     const formattedMessages = messages
       .map((msg) => {
@@ -49,14 +49,9 @@ export async function historyFormatter(message, client) {
 // this is for the forcedPromptFormatter
 export async function interactionHistoryFormatter(interaction) {
   const k = config.k;
-  const channelType = getMessageType(interaction);
 
   try {
-    const messages = await getLastXMessages(
-      interaction.channelId,
-      k,
-      channelType
-    );
+    const messages = await getLastXMessages(interaction, k);
     // Format the messages into a single string
     const formattedMessages = messages
       .map((msg) => {

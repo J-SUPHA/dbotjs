@@ -1,5 +1,5 @@
 export default function getMessageType(message) {
-  if (message.channel.guildId) {
+  if (message.guildId) {
     return "channel";
   } else {
     return "dm";

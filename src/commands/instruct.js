@@ -19,10 +19,7 @@ const create = () => {
   return command.toJSON();
 };
 
-// Called by the interactionCreate event listener when the corresponding command is invoked
-// invoke will do nothing then delete the message after 1 minute
-const invoke = (interaction) => {
-  //   console.log(interaction);
+const invoke = async (interaction) => {
   const example = interaction.options.getString("instructions");
   const displayName = interaction.member
     ? interaction.member.displayName
@@ -38,7 +35,7 @@ ${config.specialTokens.botTurn}\n`;
     sendMessageInParts(interaction, response);
   };
 
-  handleInteraction(); // Add await here
+  await handleInteraction(); // Add await here
 
   const embed = new EmbedBuilder()
     .setColor(0x0099ff) // Set a color for the embed

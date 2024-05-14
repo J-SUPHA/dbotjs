@@ -44,6 +44,22 @@ export async function createTables() {
         description TEXT,
         FOREIGN KEY (message_id) REFERENCES dms (id)
       );
+
+      CREATE TABLE IF NOT EXISTS summaries (
+        summary_id INTEGER PRIMARY KEY AUTOINCREMENT,
+        channel_id TEXT NOT NULL,
+        message_ids TEXT NOT NULL,
+        user_ids TEXT NOT NULL,
+        summary_text TEXT NOT NULL,
+        created_at INTEGER NOT NULL,
+        tags TEXT
+      );
+
+      CREATE TABLE IF NOT EXISTS message_counts (
+        channel_id TEXT PRIMARY KEY,
+        message_count INTEGER NOT NULL
+      );
+      
       
     `);
 }

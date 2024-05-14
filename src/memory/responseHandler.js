@@ -3,6 +3,7 @@ import llmCall from "../chatlogic/llmCall.js";
 import imageCaption from "../tools/imageCaption.js";
 import { logDetailedMessage } from "../memory/chatLog.js";
 import getMessageType from "../utils/message-type.js";
+import { handleMessage } from "./messageTracker.js";
 
 export async function processMessage(message, client) {
   const userName = message.author.globalName;
@@ -16,6 +17,7 @@ export async function processMessage(message, client) {
       client,
       message.cleanContent + captionResponse
     );
+    handleMessage(message, client);
     return;
   }
 
@@ -74,8 +76,9 @@ async function handleResponse(
       await logDetailedMessage(
         message,
         client,
-        message.cleanContent + captionResponse + response
+        message.cleanContent + captionResponse
       );
+      handleMessage(message, client);
       return response;
     } else {
       console.log(
