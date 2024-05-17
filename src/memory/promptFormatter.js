@@ -2,7 +2,7 @@ import { readFile } from "fs/promises";
 import {
   interactionHistoryFormatter,
   historyFormatter,
-} from "../memory/history-formatter.js";
+} from "./historyFormatter.js";
 import { getCurrentDateFormatted } from "../helpers/dateFormatter.js";
 import config from "../config.js";
 

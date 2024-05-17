@@ -2,17 +2,10 @@ import removeBotName from "../chatlogic/removeBotName.js";
 import { getLastXMessages } from "./chatlogFunctions.js";
 import config from "../config.js";
 import getMessageType from "../helpers/message-type.js";
-import retrieveVectorSearch from "./vector-search.js";
 
 export async function historyFormatter(message, client) {
   const k = config.k;
   const channelType = getMessageType(message);
-
-  try {
-    const vectorMemory = await retrieveVectorSearch(message);
-  } catch (error) {
-    const vectorMemory = "";
-  }
 
   try {
     const messages = await getLastXMessages(message.channelId, k, channelType);
