@@ -3,18 +3,18 @@ import removeBotName from "../chatlogic/removeBotName.js";
 import { getLastXMessages } from "./chatlog-functions.js";
 import config from "../config.js";
 import getMessageType from "../utils/message-type.js";
-import retrieveVectorSearch from "./vector-search.js";
+// import retrieveVectorSearch from "./vector-search.js";
 
 export async function summaryFormatter(message, client) {
   const k = config.k;
   const channelType = getMessageType(message);
 
-  let vectorMemory = "";
-  try {
-    vectorMemory = await retrieveVectorSearch(message);
-  } catch (error) {
-    console.error("Failed to retrieve vector memory:", error);
-  }
+  // let vectorMemory = "";
+  // try {
+  //   vectorMemory = await retrieveVectorSearch(message);
+  // } catch (error) {
+  //   console.error("Failed to retrieve vector memory:", error);
+  // }
 
   try {
     // Fetching k + 10 messages to get the 10 messages before the last k messages
