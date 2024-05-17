@@ -1,4 +1,4 @@
-import getMessageType from "../utils/message-type.js";
+import getMessageType from "../helpers/message-type.js";
 import { db } from "./index.js";
 
 export async function deleteMessages(interaction) {

@@ -1,5 +1,5 @@
 import { PermissionFlagsBits, SlashCommandBuilder } from "discord.js";
-import { deleteKMessages } from "../memory/chatlog-functions.js";
+import { deleteKMessages } from "../memory/chatlogFunctions.js";
 
 // Creates an Object in JSON with the data required by Discord's API to create a SlashCommand
 const create = () => {
