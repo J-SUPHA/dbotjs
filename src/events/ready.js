@@ -41,6 +41,26 @@ function commandsAreEqual(existingCommands, newCommands) {
   return true;
 }
 
+async function registerCommands(client, commandsArray, guildId = null) {
+  const commandManager = guildId
+    ? client.guilds.cache.get(guildId).commands
+    : client.application.commands;
+  const existingCommands = await commandManager.fetch();
+
+  if (commandsAreEqual(existingCommands, commandsArray)) {
+    console.log(
+      `Commands for ${
+        guildId ? `guild ${guildId}` : "global"
+      } are already up to date.`
+    );
+  } else {
+    await commandManager.set(commandsArray);
+    console.log(
+      `Updated commands for ${guildId ? `guild ${guildId}` : "global"}.`
+    );
+  }
+}
+
 async function execute(client, sharedState, channels) {
   const commandsDir = path.resolve("./src/commands"); // Absolute path to the commands directory
   let commandFiles;
@@ -48,7 +68,7 @@ async function execute(client, sharedState, channels) {
   // Read the directory containing command files
   try {
     commandFiles = await fs.readdir(commandsDir);
-    // console.log("Command files found:", commandFiles); // Log found command files
+    console.log("Command files found:", commandFiles); // Log found command files
   } catch (err) {
     console.error("Failed to read command files:", err);
     return;
@@ -67,7 +87,7 @@ async function execute(client, sharedState, channels) {
         if (command && typeof command.create === "function") {
           const cmd = command.create();
           commandsArray.push(cmd);
-          // console.log(`Command registered: ${cmd.name}`); // Log registered command
+          console.log(`Command registered: ${cmd.name}`); // Log registered command
         } else {
           console.warn(`Command ${file} does not have a create method.`);
         }
@@ -80,20 +100,12 @@ async function execute(client, sharedState, channels) {
   const channelIds = config.channelIds; // Get channel IDs from your configuration
   const guildIds = await getGuildIdsFromChannelIds(client, channelIds);
 
-  for (const guildId of guildIds) {
-    const guild = client.guilds.cache.get(guildId);
-    if (guild) {
-      const existingCommands = await guild.commands.fetch();
+  // Register commands globally
+  await registerCommands(client, commandsArray);
 
-      if (commandsAreEqual(existingCommands, commandsArray)) {
-        console.log(`Commands for guild ${guildId} are already up to date.`);
-      } else {
-        await guild.commands.set(commandsArray);
-        console.log(`Updated commands for guild ${guildId}.`);
-      }
-    } else {
-      console.error(`Guild ${guildId} not found`);
-    }
+  // Register commands for each guild
+  for (const guildId of guildIds) {
+    await registerCommands(client, commandsArray, guildId);
   }
 
   createTables();
