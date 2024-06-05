@@ -1,5 +1,5 @@
 import { db } from "./index.js";
-import { logDetailedMessageVector } from "./vector-memory.js";
+import { logDetailedMessageVector } from "./vectorMemory.js";
 import { contentCleaner } from "../helpers/utilities.js";
 
 // try {

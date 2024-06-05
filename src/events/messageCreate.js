@@ -3,10 +3,12 @@ import { logDetailedMessage } from "../memory/chatLog.js";
 import removeBotName from "../chatlogic/removeBotName.js";
 import config from "../config.js";
 import { replaceEmojiNamesWithIds } from "../helpers/utilities.js";
-import { splitMessages, delay } from "../helpers/utilities.js"; // Moved delay and splitMessages into a utilities file
+import { splitMessages, delay } from "../helpers/utilities.js";
 
+// Constants
 const CHAR_LIMIT = 2000;
 
+// Function to send a message in parts if it exceeds the character limit
 async function sendMessageInParts(message, content, client) {
   try {
     content = await replaceEmojiNamesWithIds(content, message.guild);
@@ -34,25 +36,32 @@ async function sendMessageInParts(message, content, client) {
   }
 }
 
+// main event handler for messagees
 export default {
   name: "messagecreate",
   async execute(message, client) {
+    // Ignore messages per the function defined below
     if (shouldIgnoreMessage(message, client)) {
       return;
     }
-
+    // Process the message and send the response
     try {
       const messageContent = await processMessage(message, client);
+      // If there is no message content, return
       if (!messageContent) {
         return;
       }
+
+      // Send the message in parts if it exceeds the character limit
       await sendMessageInParts(message, messageContent, client);
     } catch (error) {
       console.error("Error processing message:", error);
     }
   },
 };
-
+// Function to check if the message should be ignored
+// if it's from the bot, in a channel that isn't whitelisted,
+// or starts with an ignored pattern
 function shouldIgnoreMessage(message, client) {
   return (
     (message.channel.guildId &&

@@ -5,6 +5,7 @@ import llmCall from "../chatlogic/llmCall.js";
 
 import sendMessageInParts from "../helpers/splitMessages.js";
 
+// This function forces the bot to respond using the current context
 const create = () => {
   const command = new SlashCommandBuilder()
     .setName("respond")

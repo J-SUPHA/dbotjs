@@ -3,7 +3,7 @@ import removeBotName from "../chatlogic/removeBotName.js";
 import { getLastXMessages } from "./chatlog-functions.js";
 import config from "../config.js";
 import getMessageType from "../utils/message-type.js";
-// import retrieveVectorSearch from "./vector-search.js";
+import retrieveVectorSearch from "./vectorSearch.js";
 
 export async function summaryFormatter(message, client) {
   const k = config.k;
