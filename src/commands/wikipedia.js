@@ -4,26 +4,27 @@ import { OpenAI } from "@langchain/openai";
 import { logDetailedInteraction } from "../memory/chatLog.js";
 import config from "../config.js";
 import sendMessageInParts from "../helpers/splitMessages.js";
-const searchTool = new WikipediaQueryRun({
+
+const wikipediaSearchTool = new WikipediaQueryRun({
   topKResults: 1,
   maxDocContentLength: 10000,
 });
 
-const stopList = [...config.openAIConfig.stop, ...["assistant\n"]];
-const openAIParams = {
+const additionalStopTokens = [...config.openAIConfig.stop, ...["assistant\n"]];
+const openAIConfig = {
   ...config.openAIConfig,
   openAIApiKey: config.llmApiKey,
   configuration: {
     baseURL: config.llmBaseUrl || "https://api.openai.com/v1",
   },
   baseURL: config.llmBaseUrl,
-  stop: stopList,
+  stop: additionalStopTokens,
 };
-const llm = new OpenAI(openAIParams);
+const openAIClient = new OpenAI(openAIConfig);
 
-const llmCall = async (prompt, stopList) => {
+const invokeOpenAI = async (prompt, stopTokens) => {
   try {
-    const response = await llm.invoke(prompt, stopList);
+    const response = await openAIClient.invoke(prompt, stopTokens);
     return response;
   } catch (error) {
     console.error("Error during LLM call:", error);
@@ -32,10 +33,10 @@ const llmCall = async (prompt, stopList) => {
 };
 
 // Creates an Object in JSON with the data required by Discord's API to create a SlashCommand
-const create = () => {
+const createSlashCommand = () => {
   const command = new SlashCommandBuilder()
     .setName("wikipedia")
-    .setDescription("Search Something on Wikipedia")
+    .setDescription("Search something on Wikipedia")
     .addStringOption((option) =>
       option
         .setName("question")
@@ -46,37 +47,39 @@ const create = () => {
   return command.toJSON();
 };
 
-const invoke = async (interaction) => {
+const handleCommandInteraction = async (interaction) => {
   // await interaction.deferReply(); // Ensure the interaction is deferred
-  const displayName = interaction.member
+  const userDisplayName = interaction.member
     ? interaction.member.displayName
     : interaction.user.globalName;
-  const example = interaction.options.getString("question");
-  const searchQuery = `${config.specialTokens.system}Only using the context below. Extract the subject from the user's question with no additional text or preamble. Do not answer the question.${config.specialTokens.endOfTurn}${config.specialTokens.userTurn}${example}${config.specialTokens.endOfTurn}
+  const userQuestion = interaction.options.getString("question");
+  const extractionPrompt = `${config.specialTokens.system}Only using the context below. Extract the subject from the user's question with no additional text or preamble. Do not answer the question.${config.specialTokens.endOfTurn}${config.specialTokens.userTurn}${userQuestion}${config.specialTokens.endOfTurn}
 ${config.specialTokens.botTurn}\n`;
-  console.log(searchQuery);
+  console.log(extractionPrompt);
 
-  const handleInteraction = async () => {
+  const processInteraction = async () => {
     await interaction.deferReply(); // Ensure the interaction is deferred
-    const response = await llmCall(searchQuery, ["assistant\n"]);
-    console.log(response);
-    const wikiResults = await searchTool.invoke(response);
+    const extractedSubject = await invokeOpenAI(extractionPrompt, [
+      "assistant\n",
+    ]);
+    console.log(extractedSubject);
+    const wikipediaResults = await wikipediaSearchTool.invoke(extractedSubject);
 
-    const answerQuery = `${config.specialTokens.system}You are an AI assistant. Your job is to answer the user's question as best as you can using the search results.\n${wikiResults}${config.specialTokens.endOfTurn}${config.specialTokens.userTurn}
-    ${example}${config.specialTokens.endOfTurn}
+    const answerPrompt = `${config.specialTokens.system}You are an AI assistant. Your job is to answer the user's question as best as you can using the search results.\n${wikipediaResults}${config.specialTokens.endOfTurn}${config.specialTokens.userTurn}
+    ${userQuestion}${config.specialTokens.endOfTurn}
     ${config.specialTokens.botTurn}\n`;
 
     // The embed will show the name of the user and the avatar of the user along with the question they asked
-    const actionString = `Used the wikipedia command: '${response}'`;
-    await logDetailedInteraction(interaction, actionString);
-    const embed = new EmbedBuilder()
+    const actionLogMessage = `Used the wikipedia command: '${extractedSubject}'`;
+    await logDetailedInteraction(interaction, actionLogMessage);
+    const responseEmbed = new EmbedBuilder()
       .setColor(0x0099ff) // Set a color for the embed
       .setTitle("Wikipedia Search") // The title of the embed
       .setAuthor({
         name: interaction.user.username,
         iconURL: interaction.user.displayAvatarURL(),
       })
-      .setDescription(`${interaction.user.username} asked: ${example}`) // The description of the embed
+      .setDescription(`${interaction.user.username} asked: ${userQuestion}`) // The description of the embed
       .setTimestamp()
       .setFooter({
         text: "Wikipedia Search",
@@ -84,15 +87,15 @@ ${config.specialTokens.botTurn}\n`;
       }); // The footer of the embed
 
     await interaction.followUp({
-      embeds: [embed],
+      embeds: [responseEmbed],
       ephemeral: false,
     });
 
-    const answer = await llmCall(answerQuery, ["assistant\n"]);
-    sendMessageInParts(interaction, answer);
+    const answerResponse = await invokeOpenAI(answerPrompt, ["assistant\n"]);
+    sendMessageInParts(interaction, answerResponse);
   };
 
-  await handleInteraction(); // Add await here
+  await processInteraction(); // Add await here
 };
 
-export { create, invoke };
+export { createSlashCommand as create, handleCommandInteraction as invoke };
