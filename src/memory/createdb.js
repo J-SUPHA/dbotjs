@@ -14,7 +14,6 @@ export async function createTables() {
       global_name TEXT,
       type TEXT,
       tts BOOLEAN,
-      nonce TEXT,
       has_attachments BOOLEAN,
       image_caption TEXT,
       use_in_memory BOOLEAN,  -- New column
@@ -33,11 +32,10 @@ export async function createTables() {
       global_name TEXT,
       type TEXT,
       tts BOOLEAN,
-      nonce TEXT,
       has_attachments BOOLEAN,
       image_caption TEXT,
-      use_in_memory BOOLEAN,  -- New column
-      generated_by_discord BOOLEAN,  -- New column
+      use_in_memory BOOLEAN, 
+      generated_by_discord BOOLEAN, 
       FOREIGN KEY (author_id) REFERENCES users (id)
     );
     

@@ -9,12 +9,14 @@ export async function deleteMessages(interaction) {
 
   if (channelType === "dm") {
     query = `
-      DELETE FROM dms 
+      UPDATE dms
+      SET use_in_memory = 0
       WHERE channel_id = ?
       `;
   } else if (channelType === "channel") {
     query = `
-      DELETE FROM messages 
+      UPDATE FROM messages
+      SET use_in_memory = 0
       WHERE channel_id = ?
       `;
   }
@@ -39,34 +41,33 @@ export async function deleteMessages(interaction) {
 export async function deleteKMessages(interaction, K) {
   let query;
   const channelType = await getMessageType(interaction);
-  // console.log(channelType);
-  // console.log(interaction.channelId);
-  // console.log(message.ch);
 
   if (channelType === "dm") {
     query = `
-      DELETE FROM dms 
+      UPDATE dms
+      SET use_in_memory = 0
+      WHERE channel_id = ?
+      AND id IN (
+          SELECT id
+          FROM dms
           WHERE channel_id = ?
-          AND id IN (
-              SELECT id
-              FROM dms
-              WHERE channel_id = ?
-              ORDER BY created_timestamp DESC
-              LIMIT ?
-          )
-      `;
+          ORDER BY created_timestamp DESC
+          LIMIT ?
+      )
+    `;
   } else if (channelType === "channel") {
     query = `
-      DELETE FROM messages 
+      UPDATE messages
+      SET use_in_memory = 0
+      WHERE channel_id = ?
+      AND id IN (
+          SELECT id
+          FROM messages
           WHERE channel_id = ?
-          AND id IN (
-              SELECT id
-              FROM messages
-              WHERE channel_id = ?
-              ORDER BY created_timestamp DESC
-              LIMIT ?
-          )
-      `;
+          ORDER BY created_timestamp DESC
+          LIMIT ?
+      )
+    `;
   }
 
   try {
@@ -77,12 +78,12 @@ export async function deleteKMessages(interaction, K) {
       K
     );
     // The property name might be `changes`, `rowCount`, or something else depending on your DB interface
-    const deletedCount = result.changes; // This is for sqlite3, adjust according to your DB interface
-    console.log(`Deleted ${deletedCount} messages.`);
-    return deletedCount;
+    const updatedCount = result.changes; // This is for sqlite3, adjust according to your DB interface
+    console.log(`Flagged ${updatedCount} messages as not to be used.`);
+    return updatedCount;
   } catch (error) {
     console.error(
-      `Error deleting message with ID ${interaction.channelId}:`,
+      `Error updating messages with channel ID ${interaction.channelId}:`,
       error
     );
     throw error;
@@ -97,7 +98,7 @@ export async function getLastXMessages(channel_id, k, channelType) {
         SELECT name, clean_content FROM (
             SELECT COALESCE(global_name, user_name) AS name, clean_content, created_timestamp
             FROM dms
-            WHERE channel_id = ?
+            WHERE channel_id = ? AND use_in_memory = 1
             ORDER BY created_timestamp DESC
             LIMIT ?
         ) sub ORDER BY created_timestamp ASC
@@ -107,7 +108,7 @@ export async function getLastXMessages(channel_id, k, channelType) {
         SELECT name, clean_content FROM (
             SELECT COALESCE(global_name, user_name) AS name, clean_content, created_timestamp
             FROM messages
-            WHERE channel_id = ?
+            WHERE channel_id = ? AND use_in_memory = 1
             ORDER BY created_timestamp DESC
             LIMIT ?
         ) sub ORDER BY created_timestamp ASC

@@ -26,7 +26,6 @@ export async function logDetailedMessageVector(
     createdTimestamp,
     cleanContent: cleanContentOriginal,
     tts,
-    nonce,
     attachments,
   } = message;
 
@@ -41,7 +40,6 @@ export async function logDetailedMessageVector(
       createdTimestamp: createdTimestamp,
       type: type,
       tts: tts,
-      nonce: nonce,
       attachments: attachments,
       userId: userId,
       username: displayName || username,

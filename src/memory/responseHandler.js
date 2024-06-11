@@ -4,76 +4,85 @@ import imageCaption from "../tools/imageCaption.js";
 import { logDetailedMessage } from "../memory/chatLog.js";
 import getMessageType from "../helpers/message-type.js";
 
-export async function processMessage(message, client) {
-  // Determine the userName of the message sender
-  const userName = message.author.globalName;
-  const botName = client.user.username;
-
+async function handleAttachments(message, userName) {
   let captionResponse = "";
   if (message.attachments.size > 0) {
     for (const attachment of message.attachments.values()) {
-      const response = await imageCaption(attachment.url); // Removed .split()
-      console.log("Image caption response: ", response);
-      if (response) {
-        // Ensure response is not undefined
-        captionResponse += ` [${userName} posts a picture. Observation: ${response}]`;
-        console.log("Caption response: ", captionResponse);
-      }
-    }
-  }
-
-  // Check if the message is a channel message
-  if ((await getMessageType(message)) === "channel") {
-    // Check if the bot is not mentioned and there is no message reference
-    if (!message.mentions.has(client.user.id) && message.reference === null) {
-      // Log the message and return
-      await logDetailedMessage(
-        message,
-        client,
-        message.cleanContent + captionResponse
-      );
-      return;
-    }
-
-    // Check if there is a message reference and then fetch the referenced message
-    if (message.reference) {
       try {
-        const referencedMessage = await message.channel.messages.fetch(
-          message.reference.messageId
-        );
-
-        // Check if the author of the referenced message is not the bot itself
-        if (referencedMessage.author.id !== client.user.id) {
-          await logDetailedMessage(
-            message,
-            client,
-            message.cleanContent + captionResponse
-          );
-          return;
+        const response = await imageCaption(attachment.url);
+        console.log("Image caption response: ", response);
+        if (response) {
+          captionResponse += ` [${userName} posts a picture. Observation: ${response}]`;
+          console.log("Caption response: ", captionResponse);
         }
       } catch (error) {
-        console.error("Failed to fetch referenced message:", error);
-        // Handle errors (e.g., referenced message does not exist or access is denied)
+        console.error("Error processing attachment:", error);
       }
     }
   }
+  return captionResponse;
+}
 
-  const prompt = await promptFormatter(
-    message,
-    client,
-    message.cleanContent + captionResponse
-  );
+async function handleChannelMessage(message, client, captionResponse) {
+  if (!message.mentions.has(client.user.id) && message.reference === null) {
+    await logDetailedMessage(
+      message,
+      client,
+      message.cleanContent + captionResponse
+    );
+    return true;
+  }
 
-  // Call the llm with the prompt
+  if (message.reference) {
+    try {
+      const referencedMessage = await message.channel.messages.fetch(
+        message.reference.messageId
+      );
+
+      if (referencedMessage.author.id !== client.user.id) {
+        await logDetailedMessage(
+          message,
+          client,
+          message.cleanContent + captionResponse
+        );
+        return true;
+      }
+    } catch (error) {
+      console.error("Failed to fetch referenced message:", error);
+    }
+  }
+  return false;
+}
+
+async function processMessage(message, client) {
+  const userName = message.author.globalName;
+  const botName = client.user.username;
+
   try {
+    const captionResponse = await handleAttachments(message, userName);
+
+    if ((await getMessageType(message)) === "channel") {
+      const shouldReturn = await handleChannelMessage(
+        message,
+        client,
+        captionResponse
+      );
+      if (shouldReturn) return;
+    }
+
+    const prompt = await promptFormatter(
+      message,
+      client,
+      message.cleanContent + captionResponse
+    );
+
     await message.channel.sendTyping();
-    console.log("Prompt:", prompt);
+
     const chainResponse = await llmCall(prompt, [
       `\n${userName}: `,
       `\n${botName}: `,
     ]);
 
-    // Check for a valid response
     if (chainResponse) {
       await logDetailedMessage(
         message,
@@ -82,13 +91,15 @@ export async function processMessage(message, client) {
       );
       return chainResponse;
     } else {
-      // Handle cases where no response is received
       console.log(
-        "No response received from llm. Pass in a correct API key if you are using OpenAI or else specify the llmBaseUrl in the config if you are using an OpenAI compatible API."
+        "No response received from llm. Ensure API key or LLM base URL is correct."
       );
       return "Error. Check the logs.";
     }
   } catch (error) {
     console.error("An error occurred in processMessage:", error);
+    return "An unexpected error occurred. Please try again later.";
   }
 }
+
+export { processMessage };
