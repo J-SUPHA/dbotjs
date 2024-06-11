@@ -4,3 +4,4 @@ config.json
 messages.db
 venv/
 .history
+.history/src/memory

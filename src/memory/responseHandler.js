@@ -4,15 +4,17 @@ import imageCaption from "../tools/imageCaption.js";
 import { logDetailedMessage } from "../memory/chatLog.js";
 import getMessageType from "../helpers/message-type.js";
 
+// Function to handle attachments and generate captions
 async function handleAttachments(message, userName) {
   let captionResponse = "";
   if (message.attachments.size > 0) {
     for (const attachment of message.attachments.values()) {
       try {
         const response = await imageCaption(attachment.url);
+        console.log("Image URL: ", response);
         console.log("Image caption response: ", response);
         if (response) {
-          captionResponse += ` [${userName} posts a picture. Observation: ${response}]`;
+          captionResponse += ` [${userName} posts a picture. You can see: ${response}]`;
           console.log("Caption response: ", captionResponse);
         }
       } catch (error) {
@@ -23,22 +25,13 @@ async function handleAttachments(message, userName) {
   return captionResponse;
 }
 
+// Function to handle logging for channel messages
 async function handleChannelMessage(message, client, captionResponse) {
-  if (!message.mentions.has(client.user.id) && message.reference === null) {
-    await logDetailedMessage(
-      message,
-      client,
-      message.cleanContent + captionResponse
-    );
-    return true;
-  }
-
-  if (message.reference) {
-    try {
+  try {
+    if (message.reference) {
       const referencedMessage = await message.channel.messages.fetch(
         message.reference.messageId
       );
-
       if (referencedMessage.author.id !== client.user.id) {
         await logDetailedMessage(
           message,
@@ -47,13 +40,21 @@ async function handleChannelMessage(message, client, captionResponse) {
         );
         return true;
       }
-    } catch (error) {
-      console.error("Failed to fetch referenced message:", error);
     }
+    // Only log if there's no reference or the referenced message is from the bot itself
+    await logDetailedMessage(
+      message,
+      client,
+      message.cleanContent + captionResponse
+    );
+    return true;
+  } catch (error) {
+    console.error("Failed to fetch referenced message:", error);
+    return false;
   }
-  return false;
 }
 
+// Main function to process messages
 async function processMessage(message, client) {
   const userName = message.author.globalName;
   const botName = client.user.username;
@@ -61,13 +62,26 @@ async function processMessage(message, client) {
   try {
     const captionResponse = await handleAttachments(message, userName);
 
-    if ((await getMessageType(message)) === "channel") {
+    const isChannelMessage = (await getMessageType(message)) === "channel";
+    const shouldHandleChannelMessage =
+      isChannelMessage &&
+      !message.mentions.has(client.user.id) &&
+      message.reference === null;
+
+    if (shouldHandleChannelMessage) {
       const shouldReturn = await handleChannelMessage(
         message,
         client,
         captionResponse
       );
       if (shouldReturn) return;
+    } else {
+      // Log the user's message before generating the response
+      await logDetailedMessage(
+        message,
+        client,
+        message.cleanContent + captionResponse
+      );
     }
 
     const prompt = await promptFormatter(
@@ -83,22 +97,22 @@ async function processMessage(message, client) {
       `\n${botName}: `,
     ]);
 
+    // Check for a valid response
     if (chainResponse) {
-      await logDetailedMessage(
-        message,
-        client,
-        message.cleanContent + captionResponse
-      );
+      // console.log("Logging response generated");
       return chainResponse;
     } else {
+      // Handle cases where no response is received
       console.log(
-        "No response received from llm. Ensure API key or LLM base URL is correct."
+        "No response received from llm. Pass in a correct API key if you are using OpenAI or else specify the llmBaseUrl in the config if you are using an OpenAI compatible API."
       );
-      return "Error. Check the logs.";
+      console.log("Logging no response scenario");
+      return null; // Return null instead of "Error. Check the logs."
     }
   } catch (error) {
     console.error("An error occurred in processMessage:", error);
-    return "An unexpected error occurred. Please try again later.";
+    console.log("Logging error scenario");
+    return null; // Return null instead of "Error. Check the logs."
   }
 }
 

@@ -60,10 +60,9 @@ export async function logDetailedMessage(message, client, formattedMessage) {
       ]
     );
   } else {
-    // Server channel message
     await db.run(
       `INSERT INTO messages (id, channel_id, guild_id, created_timestamp, content, clean_content, author_id, user_name, global_name, type, tts, has_attachments, image_caption, use_in_memory, generated_by_discord)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
       [
         messageId,
         channelId,
@@ -76,7 +75,6 @@ export async function logDetailedMessage(message, client, formattedMessage) {
         displayName || username,
         type,
         tts,
-
         attachments && attachments.size > 0,
         null, // Using NULL as a placeholder for the image caption
         true, // Use in memory
@@ -119,7 +117,6 @@ export async function logDetailedInteraction(interaction, string) {
     guildId, // This property distinguishes between DMs and server channel messages
     createdTimestamp,
     tts,
-
     attachments,
   } = interaction;
 
@@ -133,7 +130,7 @@ export async function logDetailedInteraction(interaction, string) {
     // DM
     await db.run(
       `INSERT INTO dms (id, channel_id, created_timestamp, content, clean_content, author_id, user_name, global_name, type, tts, has_attachments, image_caption, use_in_memory, generated_by_discord)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,  ?, ?);`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
       [
         interactionId,
         channelId,
@@ -145,7 +142,6 @@ export async function logDetailedInteraction(interaction, string) {
         displayName || username,
         type,
         tts,
-
         attachments && attachments.size > 0,
         null, // Using NULL as a placeholder for the image caption
         true, // Use in memory
@@ -156,7 +152,7 @@ export async function logDetailedInteraction(interaction, string) {
     // Server channel message
     await db.run(
       `INSERT INTO messages (id, channel_id, guild_id, created_timestamp, content, clean_content, author_id, user_name, global_name, type, tts, has_attachments, image_caption, use_in_memory, generated_by_discord)
-       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?);`,
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);`,
       [
         interactionId,
         channelId,
@@ -169,7 +165,6 @@ export async function logDetailedInteraction(interaction, string) {
         displayName || username,
         type,
         tts,
-
         attachments && attachments.size > 0,
         null, // Using NULL as a placeholder for the image caption
         true, // Use in memory
