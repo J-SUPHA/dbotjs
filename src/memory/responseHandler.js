@@ -25,7 +25,6 @@ async function handleAttachments(message, userName) {
   return captionResponse;
 }
 
-// Function to handle logging for channel messages
 async function handleChannelMessage(message, client, captionResponse) {
   try {
     if (message.reference) {
@@ -38,10 +37,12 @@ async function handleChannelMessage(message, client, captionResponse) {
           client,
           message.cleanContent + captionResponse
         );
+        console.log("Logging channel message with reference");
         return true;
       }
     }
-    // Only log if there's no reference or the referenced message is from the bot itself
+
+    console.log("Logging channel message. No reference");
     await logDetailedMessage(
       message,
       client,
@@ -50,6 +51,19 @@ async function handleChannelMessage(message, client, captionResponse) {
     return true;
   } catch (error) {
     console.error("Failed to fetch referenced message:", error);
+    return false;
+  }
+}
+
+async function handleChannelReply(message, client, captionResponse) {
+  try {
+    if (message.mentions.repliedUser !== null) {
+      if (message.mentions.repliedUser.id !== client.user.id) {
+        console.log("the bot is not mentioned in the reply");
+        return true;
+      }
+    }
+  } catch (error) {
     return false;
   }
 }
@@ -63,18 +77,26 @@ async function processMessage(message, client) {
     const captionResponse = await handleAttachments(message, userName);
 
     const isChannelMessage = (await getMessageType(message)) === "channel";
+    // isOtherBotReply should be true if message.mentions.repliedUser.id !== client.user.id and false otherwise
+
     const shouldHandleChannelMessage =
-      isChannelMessage &&
-      !message.mentions.has(client.user.id) &&
-      message.reference === null;
+      isChannelMessage && !message.mentions.has(client.user.id);
+    console.log("shouldHandleChannelMessage: ", shouldHandleChannelMessage);
 
     if (shouldHandleChannelMessage) {
+      console.log("shouldHandleChannelMessage is true");
       const shouldReturn = await handleChannelMessage(
         message,
         client,
         captionResponse
       );
-      if (shouldReturn) return;
+      const replyReturn = await handleChannelReply(
+        message,
+        client,
+        captionResponse
+      );
+
+      if (shouldReturn || replyReturn) return;
     } else {
       // Log the user's message before generating the response
       await logDetailedMessage(
