@@ -31,21 +31,30 @@ class CommandUnregisterer {
   async onReady() {
     try {
       const guild = await this.client.guilds.fetch(GUILD_ID);
-      const commands = await guild.commands.fetch();
 
-      console.log(`Fetched ${commands.size} commands for guild ${GUILD_ID}.`);
-
-      for (const [commandId, command] of commands) {
+      // Unregistering guild-specific commands
+      const guildCommands = await guild.commands.fetch();
+      console.log(
+        `Fetched ${guildCommands.size} guild-specific commands for guild ${GUILD_ID}.`
+      );
+      for (const [commandId, command] of guildCommands) {
         await guild.commands.delete(commandId);
-        console.log(`Deleted command ${command.name} (${commandId})`);
+        console.log(
+          `Deleted guild-specific command ${command.name} (${commandId})`
+        );
       }
 
-      console.log(`All commands for guild ${GUILD_ID} have been unregistered.`);
+      // Unregistering global commands
+      const globalCommands = await this.client.application.commands.fetch();
+      console.log(`Fetched ${globalCommands.size} global commands.`);
+      for (const [commandId, command] of globalCommands) {
+        await this.client.application.commands.delete(commandId);
+        console.log(`Deleted global command ${command.name} (${commandId})`);
+      }
+
+      console.log(`All commands have been unregistered.`);
     } catch (error) {
-      console.error(
-        `Error unregistering commands for guild ${GUILD_ID}:`,
-        error
-      );
+      console.error(`Error unregistering commands:`, error);
     } finally {
       this.client.destroy();
     }
