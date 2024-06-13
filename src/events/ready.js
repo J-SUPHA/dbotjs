@@ -47,6 +47,12 @@ async function registerCommands(client, commandsArray, guildId = null) {
     : client.application.commands;
   const existingCommands = await commandManager.fetch();
 
+  console.log(
+    `Fetched ${existingCommands.size} existing commands for ${
+      guildId ? `guild ${guildId}` : "global"
+    }.`
+  );
+
   if (commandsAreEqual(existingCommands, commandsArray)) {
     console.log(
       `Commands for ${
@@ -105,6 +111,7 @@ async function execute(client, sharedState, channels) {
 
   // Register commands for each guild
   for (const guildId of guildIds) {
+    console.log(`Registering commands for guild ${guildId}`);
     await registerCommands(client, commandsArray, guildId);
   }
 

@@ -24,7 +24,9 @@ async function handleAttachments(message, userName) {
   }
   return captionResponse;
 }
-
+// logic for handling channel messages
+// if the message has a reference it fetches the referenced message and checks if the author is the bot
+// if the author is not the bot it logs the message and returns true (meaning no response will be generated)
 async function handleChannelMessage(message, client, captionResponse) {
   try {
     if (message.reference) {
@@ -37,12 +39,12 @@ async function handleChannelMessage(message, client, captionResponse) {
           client,
           message.cleanContent + captionResponse
         );
-        console.log("Logging channel message with reference");
+        // console.log("Logging channel message with reference");
         return true;
       }
     }
 
-    console.log("Logging channel message. No reference");
+    // console.log("Logging channel message. No reference");
     await logDetailedMessage(
       message,
       client,
@@ -54,12 +56,12 @@ async function handleChannelMessage(message, client, captionResponse) {
     return false;
   }
 }
-
+// Function to handle channel replies, if the reply is to the bot it returns false otherwise true
 async function handleChannelReply(message, client, captionResponse) {
   try {
     if (message.mentions.repliedUser !== null) {
       if (message.mentions.repliedUser.id !== client.user.id) {
-        console.log("the bot is not mentioned in the reply");
+        // console.log("the bot is not mentioned in the reply");
         return true;
       }
     }
@@ -77,14 +79,12 @@ async function processMessage(message, client) {
     const captionResponse = await handleAttachments(message, userName);
 
     const isChannelMessage = (await getMessageType(message)) === "channel";
-    // isOtherBotReply should be true if message.mentions.repliedUser.id !== client.user.id and false otherwise
-
+    // Check if the message is a channel message and not a mention
     const shouldHandleChannelMessage =
       isChannelMessage && !message.mentions.has(client.user.id);
-    console.log("shouldHandleChannelMessage: ", shouldHandleChannelMessage);
-
+    // console.log("shouldHandleChannelMessage: ", shouldHandleChannelMessage);
+    // If the message is a channel message and the bot is not mentioned, handle it
     if (shouldHandleChannelMessage) {
-      console.log("shouldHandleChannelMessage is true");
       const shouldReturn = await handleChannelMessage(
         message,
         client,
@@ -95,7 +95,7 @@ async function processMessage(message, client) {
         client,
         captionResponse
       );
-
+      // this part checks if it should return based on the handleChannelMessage and handleChannelReply functions
       if (shouldReturn || replyReturn) return;
     } else {
       // Log the user's message before generating the response

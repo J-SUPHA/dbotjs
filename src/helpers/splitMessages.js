@@ -33,9 +33,7 @@ function splitMessages(content, charLimit) {
 }
 
 // rus the message through the replaceEmojiNamesWithIds function then return the message
-export default async function sendMessageInParts(interaction, content) {
-  // console.log("interactoin", interaction);
-  // console.log("content", content);
+export async function sendInteractionMessageInParts(interaction, content) {
   content = await replaceEmojiNamesWithIds(content, interaction.guild);
   const CHAR_LIMIT = 2000;
   if (content.length <= CHAR_LIMIT) {
@@ -60,5 +58,32 @@ export default async function sendMessageInParts(interaction, content) {
       );
       await delay(1000); // Wait for 1 second between message parts to avoid rate limiting
     }
+  }
+}
+
+export async function sendMessageInParts(message, content, client) {
+  const CHAR_LIMIT = 2000;
+  try {
+    content = await replaceEmojiNamesWithIds(content, message.guild);
+    if (typeof content !== "string") {
+      throw new TypeError("Content must be a string");
+    }
+
+    if (content.length <= CHAR_LIMIT) {
+      const sentMessage = await message.channel.send(
+        removeBotName(client.user.username, content)
+      );
+      await logDetailedMessage(sentMessage, client, sentMessage.cleanContent);
+    } else {
+      const messageParts = splitMessages(content, CHAR_LIMIT);
+      for (const part of messageParts) {
+        const sentMessage = await message.channel.send(
+          removeBotName(client.user.username, part)
+        );
+        await logDetailedMessage(sentMessage, client, sentMessage.cleanContent);
+      }
+    }
+  } catch (error) {
+    console.error("Failed to send message parts:", error);
   }
 }

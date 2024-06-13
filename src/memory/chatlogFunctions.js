@@ -1,23 +1,22 @@
 import getMessageType from "../helpers/message-type.js";
 import { db } from "./index.js";
-
 export async function deleteMessages(interaction) {
   let query;
   const channelType = await getMessageType(interaction);
-  // console.log(channelType);
-  // console.log(interaction.channelId);
 
   if (channelType === "dm") {
     query = `
       UPDATE dms
       SET use_in_memory = 0
       WHERE channel_id = ?
+      AND use_in_memory = 1
       `;
   } else if (channelType === "channel") {
     query = `
-      UPDATE FROM messages
+      UPDATE messages
       SET use_in_memory = 0
       WHERE channel_id = ?
+      AND use_in_memory = 1
       `;
   }
 
@@ -47,6 +46,7 @@ export async function deleteKMessages(interaction, K) {
       UPDATE dms
       SET use_in_memory = 0
       WHERE channel_id = ?
+      AND use_in_memory = 1
       AND id IN (
           SELECT id
           FROM dms
@@ -60,6 +60,7 @@ export async function deleteKMessages(interaction, K) {
       UPDATE messages
       SET use_in_memory = 0
       WHERE channel_id = ?
+      AND use_in_memory = 1
       AND id IN (
           SELECT id
           FROM messages
@@ -77,7 +78,6 @@ export async function deleteKMessages(interaction, K) {
       interaction.channelId,
       K
     );
-    // The property name might be `changes`, `rowCount`, or something else depending on your DB interface
     const updatedCount = result.changes; // This is for sqlite3, adjust according to your DB interface
     console.log(`Flagged ${updatedCount} messages as not to be used.`);
     return updatedCount;

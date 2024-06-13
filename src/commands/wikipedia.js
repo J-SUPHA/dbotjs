@@ -3,7 +3,7 @@ import { WikipediaQueryRun } from "@langchain/community/tools/wikipedia_query_ru
 import { OpenAI } from "@langchain/openai";
 import { logDetailedInteraction } from "../memory/chatLog.js";
 import config from "../config.js";
-import sendMessageInParts from "../helpers/splitMessages.js";
+import { sendInteractionMessageInParts } from "../helpers/splitMessages.js";
 
 const wikipediaSearchTool = new WikipediaQueryRun({
   topKResults: 1,
@@ -92,7 +92,7 @@ ${config.specialTokens.botTurn}\n`;
     });
 
     const answerResponse = await invokeOpenAI(answerPrompt, ["assistant\n"]);
-    sendMessageInParts(interaction, answerResponse);
+    sendInteractionMessageInParts(interaction, answerResponse);
   };
 
   await processInteraction(); // Add await here
