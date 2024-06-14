@@ -43,42 +43,56 @@ export async function deleteKMessages(interaction, K) {
 
   if (channelType === "dm") {
     query = `
-      UPDATE dms
-      SET use_in_memory = 0
+      SELECT id
+      FROM dms
       WHERE channel_id = ?
-      AND use_in_memory = 1
-      AND id IN (
+      ORDER BY created_timestamp DESC
+      LIMIT ?
+    `;
+  } else if (channelType === "channel") {
+    query = `
+      SELECT id
+      FROM messages
+      WHERE channel_id = ?
+      ORDER BY created_timestamp DESC
+      LIMIT ?
+    `;
+  }
+
+  try {
+    // Fetch and log the IDs of messages to be updated
+    const messagesToUpdate = await db.all(query, interaction.channelId, K);
+    console.log(`Messages to update:`, messagesToUpdate);
+
+    // Now perform the update
+    if (channelType === "dm") {
+      query = `
+        UPDATE dms
+        SET use_in_memory = 0
+        WHERE id IN (
           SELECT id
           FROM dms
           WHERE channel_id = ?
           ORDER BY created_timestamp DESC
           LIMIT ?
-      )
-    `;
-  } else if (channelType === "channel") {
-    query = `
-      UPDATE messages
-      SET use_in_memory = 0
-      WHERE channel_id = ?
-      AND use_in_memory = 1
-      AND id IN (
+        )
+      `;
+    } else if (channelType === "channel") {
+      query = `
+        UPDATE messages
+        SET use_in_memory = 0
+        WHERE id IN (
           SELECT id
           FROM messages
           WHERE channel_id = ?
           ORDER BY created_timestamp DESC
           LIMIT ?
-      )
-    `;
-  }
+        )
+      `;
+    }
 
-  try {
-    const result = await db.run(
-      query,
-      interaction.channelId,
-      interaction.channelId,
-      K
-    );
-    const updatedCount = result.changes; // This is for sqlite3, adjust according to your DB interface
+    const result = await db.run(query, interaction.channelId, K);
+    const updatedCount = result.changes;
     console.log(`Flagged ${updatedCount} messages as not to be used.`);
     return updatedCount;
   } catch (error) {

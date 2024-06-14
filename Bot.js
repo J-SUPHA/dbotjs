@@ -1,7 +1,6 @@
 import {} from "dotenv/config";
 import fs from "fs";
 import { Client, GatewayIntentBits, Partials } from "discord.js";
-import { resetInactivityTimer } from "./src/events/ready.js"; // Import resetInactivityTimer
 
 class Bot {
   constructor() {
@@ -65,19 +64,6 @@ class Bot {
       } else if (event.default) {
         this.client.on(eventName, handler);
       }
-    });
-
-    // Additional event listeners for other activities
-    this.client.on("messageCreate", (message) => {
-      console.log(`Message received: ${message.content}`);
-      // Reset inactivity timer on message
-      resetInactivityTimer();
-    });
-
-    this.client.on("interactionCreate", (interaction) => {
-      console.log(`Interaction received: ${interaction.commandName}`);
-      // Reset inactivity timer on interaction
-      resetInactivityTimer();
     });
   }
 

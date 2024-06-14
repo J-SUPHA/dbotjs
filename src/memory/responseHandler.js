@@ -3,6 +3,7 @@ import llmCall from "../chatlogic/llmCall.js";
 import imageCaption from "../tools/imageCaption.js";
 import { logDetailedMessage } from "../memory/chatLog.js";
 import getMessageType from "../helpers/message-type.js";
+import { prepareMessageParts } from "../helpers/splitMessages.js";
 
 // Function to handle attachments and generate captions
 async function handleAttachments(message, userName) {
@@ -11,11 +12,8 @@ async function handleAttachments(message, userName) {
     for (const attachment of message.attachments.values()) {
       try {
         const response = await imageCaption(attachment.url);
-        console.log("Image URL: ", response);
-        console.log("Image caption response: ", response);
         if (response) {
           captionResponse += ` [${userName} posts a picture. You can see: ${response}]`;
-          console.log("Caption response: ", captionResponse);
         }
       } catch (error) {
         console.error("Error processing attachment:", error);
@@ -24,9 +22,9 @@ async function handleAttachments(message, userName) {
   }
   return captionResponse;
 }
-// logic for handling channel messages
-// if the message has a reference it fetches the referenced message and checks if the author is the bot
-// if the author is not the bot it logs the message and returns true (meaning no response will be generated)
+
+// Logic for handling channel messages
+// Logs the message if it has a reference and the reference is not from the bot
 async function handleChannelMessage(message, client, captionResponse) {
   try {
     if (message.reference) {
@@ -39,12 +37,10 @@ async function handleChannelMessage(message, client, captionResponse) {
           client,
           message.cleanContent + captionResponse
         );
-        // console.log("Logging channel message with reference");
         return true;
       }
     }
-
-    // console.log("Logging channel message. No reference");
+    // Log the message if there is no reference
     await logDetailedMessage(
       message,
       client,
@@ -56,12 +52,13 @@ async function handleChannelMessage(message, client, captionResponse) {
     return false;
   }
 }
-// Function to handle channel replies, if the reply is to the bot it returns false otherwise true
+
+// Function to handle channel replies
+// Returns true if the reply is to another user, not the bot
 async function handleChannelReply(message, client, captionResponse) {
   try {
     if (message.mentions.repliedUser !== null) {
       if (message.mentions.repliedUser.id !== client.user.id) {
-        // console.log("the bot is not mentioned in the reply");
         return true;
       }
     }
@@ -76,15 +73,16 @@ async function processMessage(message, client) {
   const botName = client.user.username;
 
   try {
+    // Handle any attachments and generate captions for them
     const captionResponse = await handleAttachments(message, userName);
 
+    // Determine if the message is a channel message and the bot is not mentioned
     const isChannelMessage = (await getMessageType(message)) === "channel";
-    // Check if the message is a channel message and not a mention
     const shouldHandleChannelMessage =
       isChannelMessage && !message.mentions.has(client.user.id);
-    // console.log("shouldHandleChannelMessage: ", shouldHandleChannelMessage);
-    // If the message is a channel message and the bot is not mentioned, handle it
+
     if (shouldHandleChannelMessage) {
+      // Log the message if it is a channel message and not a mention
       const shouldReturn = await handleChannelMessage(
         message,
         client,
@@ -95,7 +93,7 @@ async function processMessage(message, client) {
         client,
         captionResponse
       );
-      // this part checks if it should return based on the handleChannelMessage and handleChannelReply functions
+      // Return if the message has been handled
       if (shouldReturn || replyReturn) return;
     } else {
       // Log the user's message before generating the response
@@ -106,35 +104,54 @@ async function processMessage(message, client) {
       );
     }
 
+    // Format the prompt for the language model call
     const prompt = await promptFormatter(
       message,
       client,
       message.cleanContent + captionResponse
     );
 
-    await message.channel.sendTyping();
+    let typing = true;
 
+    // Function to keep sending typing indicator
+    const keepTyping = async () => {
+      while (typing) {
+        await message.channel.sendTyping();
+        await new Promise((resolve) => setTimeout(resolve, 5000)); // Discord typing status lasts for 10 seconds, refresh every 5 seconds
+      }
+    };
+
+    // Start showing typing indicator
+    keepTyping();
+
+    // Call the language model to generate a response
     const chainResponse = await llmCall(prompt, [
       `\n${userName}: `,
       `\n${botName}: `,
     ]);
 
+    // Stop showing typing indicator
+    typing = false;
+
     // Check for a valid response
     if (chainResponse) {
-      // console.log("Logging response generated");
-      return chainResponse;
-    } else {
-      // Handle cases where no response is received
-      console.log(
-        "No response received from llm. Pass in a correct API key if you are using OpenAI or else specify the llmBaseUrl in the config if you are using an OpenAI compatible API."
+      // Prepare and send the message parts
+      const messageParts = await prepareMessageParts(
+        chainResponse,
+        message.guild,
+        botName
       );
-      console.log("Logging no response scenario");
-      return null; // Return null instead of "Error. Check the logs."
+      for (const part of messageParts) {
+        const sentMessage = await message.channel.send(part);
+        await logDetailedMessage(sentMessage, client, sentMessage.cleanContent);
+      }
+    } else {
+      console.log(
+        "No response received from llm. Ensure API key or llmBaseUrl is correctly set."
+      );
     }
   } catch (error) {
     console.error("An error occurred in processMessage:", error);
-    console.log("Logging error scenario");
-    return null; // Return null instead of "Error. Check the logs."
   }
 }
 
