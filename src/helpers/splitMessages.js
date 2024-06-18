@@ -90,6 +90,7 @@
 //   }
 // }
 import { replaceEmojiNamesWithIds } from "../helpers/utilities.js";
+import { logDetailedMessage } from "../memory/chatLog.js";
 import removeBotName from "../chatlogic/removeBotName.js";
 
 // Helper function to create a delay
