@@ -1,5 +1,6 @@
 {
   "llmBaseUrl": "http://api.endpoing.com/v1",
+  "clientId": "1111111111111",
   "channelIds": ["123456789", "123456789"],
   "openAIConfig": {
     "maxTokens": 200,

@@ -1,7 +1,7 @@
 import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
 import { logDetailedInteraction } from "../memory/chatLog.js";
 import llmCall from "../chatlogic/llmCall.js";
-import sendMessageInParts from "../helpers/splitMessages.js";
+import { sendInteractionMessageInParts } from "../helpers/splitMessages.js";
 import config from "../config.js";
 
 // Creates an Object in JSON with the data required by Discord's API to create a SlashCommand
@@ -32,7 +32,7 @@ ${config.specialTokens.botTurn}\n`;
     const response = await llmCall(instructTemplate, []);
     const actionString = `Used the instruct command: '${example}'`;
     await logDetailedInteraction(interaction, actionString);
-    sendMessageInParts(interaction, response);
+    sendInteractionMessageInParts(interaction, response);
   };
 
   await handleInteraction(); // Add await here

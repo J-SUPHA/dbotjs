@@ -10,7 +10,7 @@ export default async function llmCall(prompt, stopWords) {
     configuration: {
       baseURL: config.llmBaseUrl || "https://api.openai.com/v1",
     },
-    baseURL: config.llmBaseUrl,
+    // baseURL: config.llmBaseUrl,
     stop: stopList,
   };
 
@@ -19,7 +19,7 @@ export default async function llmCall(prompt, stopWords) {
   try {
     const response = await llm.invoke(prompt);
 
-    console.log(response);
+    // console.log(response);
     return response;
   } catch (error) {
     console.error("Request failed:", error);

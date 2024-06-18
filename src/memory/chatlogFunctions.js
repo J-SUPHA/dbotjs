@@ -1,21 +1,22 @@
 import getMessageType from "../helpers/message-type.js";
 import { db } from "./index.js";
-
 export async function deleteMessages(interaction) {
   let query;
   const channelType = await getMessageType(interaction);
-  // console.log(channelType);
-  // console.log(interaction.channelId);
 
   if (channelType === "dm") {
     query = `
-      DELETE FROM dms 
+      UPDATE dms
+      SET use_in_memory = 0
       WHERE channel_id = ?
+      AND use_in_memory = 1
       `;
   } else if (channelType === "channel") {
     query = `
-      DELETE FROM messages 
+      UPDATE messages
+      SET use_in_memory = 0
       WHERE channel_id = ?
+      AND use_in_memory = 1
       `;
   }
 
@@ -39,50 +40,64 @@ export async function deleteMessages(interaction) {
 export async function deleteKMessages(interaction, K) {
   let query;
   const channelType = await getMessageType(interaction);
-  // console.log(channelType);
-  // console.log(interaction.channelId);
-  // console.log(message.ch);
 
   if (channelType === "dm") {
     query = `
-      DELETE FROM dms 
-          WHERE channel_id = ?
-          AND id IN (
-              SELECT id
-              FROM dms
-              WHERE channel_id = ?
-              ORDER BY created_timestamp DESC
-              LIMIT ?
-          )
-      `;
+      SELECT id
+      FROM dms
+      WHERE channel_id = ?
+      ORDER BY created_timestamp DESC
+      LIMIT ?
+    `;
   } else if (channelType === "channel") {
     query = `
-      DELETE FROM messages 
-          WHERE channel_id = ?
-          AND id IN (
-              SELECT id
-              FROM messages
-              WHERE channel_id = ?
-              ORDER BY created_timestamp DESC
-              LIMIT ?
-          )
-      `;
+      SELECT id
+      FROM messages
+      WHERE channel_id = ?
+      ORDER BY created_timestamp DESC
+      LIMIT ?
+    `;
   }
 
   try {
-    const result = await db.run(
-      query,
-      interaction.channelId,
-      interaction.channelId,
-      K
-    );
-    // The property name might be `changes`, `rowCount`, or something else depending on your DB interface
-    const deletedCount = result.changes; // This is for sqlite3, adjust according to your DB interface
-    console.log(`Deleted ${deletedCount} messages.`);
-    return deletedCount;
+    // Fetch and log the IDs of messages to be updated
+    const messagesToUpdate = await db.all(query, interaction.channelId, K);
+    console.log(`Messages to update:`, messagesToUpdate);
+
+    // Now perform the update
+    if (channelType === "dm") {
+      query = `
+        UPDATE dms
+        SET use_in_memory = 0
+        WHERE id IN (
+          SELECT id
+          FROM dms
+          WHERE channel_id = ?
+          ORDER BY created_timestamp DESC
+          LIMIT ?
+        )
+      `;
+    } else if (channelType === "channel") {
+      query = `
+        UPDATE messages
+        SET use_in_memory = 0
+        WHERE id IN (
+          SELECT id
+          FROM messages
+          WHERE channel_id = ?
+          ORDER BY created_timestamp DESC
+          LIMIT ?
+        )
+      `;
+    }
+
+    const result = await db.run(query, interaction.channelId, K);
+    const updatedCount = result.changes;
+    console.log(`Flagged ${updatedCount} messages as not to be used.`);
+    return updatedCount;
   } catch (error) {
     console.error(
-      `Error deleting message with ID ${interaction.channelId}:`,
+      `Error updating messages with channel ID ${interaction.channelId}:`,
       error
     );
     throw error;
@@ -99,7 +114,7 @@ export async function getLastXMessages(message, k) {
         SELECT name, clean_content FROM (
             SELECT COALESCE(global_name, user_name) AS name, clean_content, created_timestamp
             FROM dms
-            WHERE channel_id = ?
+            WHERE channel_id = ? AND use_in_memory = 1
             ORDER BY created_timestamp DESC
             LIMIT ?
         ) sub ORDER BY created_timestamp ASC
@@ -109,7 +124,7 @@ export async function getLastXMessages(message, k) {
         SELECT name, clean_content FROM (
             SELECT COALESCE(global_name, user_name) AS name, clean_content, created_timestamp
             FROM messages
-            WHERE channel_id = ?
+            WHERE channel_id = ? AND use_in_memory = 1
             ORDER BY created_timestamp DESC
             LIMIT ?
         ) sub ORDER BY created_timestamp ASC

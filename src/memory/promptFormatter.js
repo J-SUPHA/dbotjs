@@ -11,7 +11,6 @@ async function channelType(message) {
     ? message.member.displayName
     : message.author.globalName;
   if (message.channel.guildId) {
-    // get name of server and channel
     const guild = await message.client.guilds.fetch(message.channel.guildId);
     const channel = guild.channels.cache.get(message.channel.id);
 
@@ -77,9 +76,8 @@ export async function promptFormatter(message, client, formattedMessage) {
       channeltype,
     });
 
-    const formattedUserMessage = `${config.specialTokens.userTurn}${user}: ${formattedMessage}${config.specialTokens.endOfTurn}`;
     const formattedBotMessage = `${config.specialTokens.botTurn}${char}:`;
-    const finalPrompt = `${formattedPrompt}\n${formattedUserMessage}\n${formattedBotMessage}`;
+    const finalPrompt = `${formattedPrompt}\n${formattedBotMessage}`;
     return finalPrompt;
   } catch (error) {
     console.error("Error formatting prompt:", error);

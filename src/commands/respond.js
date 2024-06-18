@@ -3,7 +3,7 @@ import { forcedPromptFormatter } from "../memory/promptFormatter.js";
 
 import llmCall from "../chatlogic/llmCall.js";
 
-import sendMessageInParts from "../helpers/splitMessages.js";
+import { sendInteractionMessageInParts } from "../helpers/splitMessages.js";
 
 // This function forces the bot to respond using the current context
 const create = () => {
@@ -23,7 +23,7 @@ const invoke = async (interaction) => {
   const response = await llmCall(prompt, []);
 
   // Using channel.send() to send the response directly to the channel
-  sendMessageInParts(interaction, response); // Assuming this function sends the message in parts if it exceeds the character limit (2000 characters
+  sendInteractionMessageInParts(interaction, response); // Assuming this function sends the message in parts if it exceeds the character limit (2000 characters
 
   // Optionally delete the defer message if you don't want any visible trace from the bot's initial interaction
   await interaction.deleteReply();
