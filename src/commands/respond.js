@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from "discord.js";
-import { forcedPromptFormatter } from "../memory/promptFormatter.js";
+import { forcedInteractionPromptFormatter } from "../memory/promptFormatter.js";
 
-import llmCall from "../chatlogic/llmCall.js";
+import { llmCall, llmChatCall } from "../chatlogic/llmCall.js";
 
 import { sendInteractionMessageInParts } from "../helpers/splitMessages.js";
 
@@ -18,12 +18,14 @@ const invoke = async (interaction) => {
   // Defer the reply; this acknowledges the interaction but doesn't send a visible response
   await interaction.deferReply(); // Ensure the interaction is deferred
   // Generate a prompt using some internal logic or context
-  const prompt = await forcedPromptFormatter(interaction); // Assuming this function handles prompt generation
 
-  const response = await llmCall(prompt, []);
+  const { promptTemplate, messageObjects } =
+    await forcedInteractionPromptFormatter(interaction);
+
+  const chainResponse = await llmChatCall(promptTemplate, messageObjects, []);
 
   // Using channel.send() to send the response directly to the channel
-  sendInteractionMessageInParts(interaction, response); // Assuming this function sends the message in parts if it exceeds the character limit (2000 characters
+  sendInteractionMessageInParts(interaction, chainResponse.content); // Assuming this function sends the message in parts if it exceeds the character limit (2000 characters
 
   // Optionally delete the defer message if you don't want any visible trace from the bot's initial interaction
   await interaction.deleteReply();

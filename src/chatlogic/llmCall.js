@@ -1,8 +1,8 @@
 import config from "../config.js";
-import { OpenAI } from "@langchain/openai";
+import { OpenAI, ChatOpenAI } from "@langchain/openai";
 
-export default async function llmCall(prompt, stopWords) {
-  console.log("Prompt:", prompt);
+export async function llmCall(prompt, stopWords) {
+  // console.log("Prompt:", prompt);
   const stopList = [...config.openAIConfig.stop, ...stopWords];
   const openAIParams = {
     ...config.openAIConfig,
@@ -18,6 +18,34 @@ export default async function llmCall(prompt, stopWords) {
 
   try {
     const response = await llm.invoke(prompt);
+
+    // console.log(response);
+    return response;
+  } catch (error) {
+    console.error("Request failed:", error);
+  }
+}
+
+export async function llmChatCall(promptTemplate, messageObjects, stopWords) {
+  // console.log("Prompt:", prompt);
+  const stopList = [...config.openAIConfig.stop, ...stopWords];
+  const openAIParams = {
+    ...config.openAIConfig,
+    openAIApiKey: config.llmApiKey,
+    configuration: {
+      baseURL: config.llmBaseUrl || "https://api.openai.com/v1",
+    },
+    // baseURL: config.llmBaseUrl,
+    stop: stopList,
+  };
+
+  const llm = new ChatOpenAI(openAIParams);
+
+  try {
+    const chain = promptTemplate.pipe(llm);
+    const response = await chain.invoke({
+      messages: messageObjects,
+    });
 
     // console.log(response);
     return response;

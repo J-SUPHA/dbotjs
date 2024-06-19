@@ -1,5 +1,5 @@
-import { promptFormatter } from "./promptFormatter.js";
-import llmCall from "../chatlogic/llmCall.js";
+import { promptFormatter, systemPromptFormatter } from "./promptFormatter.js";
+import { llmCall, llmChatCall } from "../chatlogic/llmCall.js";
 import imageCaption from "../tools/imageCaption.js";
 import { logDetailedMessage } from "../memory/chatLog.js";
 import getMessageType from "../helpers/message-type.js";
@@ -111,6 +111,11 @@ async function processMessage(message, client) {
       message.cleanContent + captionResponse
     );
 
+    const { promptTemplate, messageObjects } = await systemPromptFormatter(
+      message,
+      client
+    );
+
     let typing = true;
 
     // Function to keep sending typing indicator
@@ -125,11 +130,17 @@ async function processMessage(message, client) {
     keepTyping();
 
     // Call the language model to generate a response
-    const chainResponse = await llmCall(prompt, [
+    // const chainResponse = await llmCall(prompt, [
+    //   `\n${userName}: `,
+    //   `\n${botName}: `,
+    // ]);
+
+    const chainResponse = await llmChatCall(promptTemplate, messageObjects, [
       `\n${userName}: `,
       `\n${botName}: `,
     ]);
 
+    console.log(chainResponse.content);
     // Stop showing typing indicator
     typing = false;
 
@@ -137,7 +148,7 @@ async function processMessage(message, client) {
     if (chainResponse) {
       // Prepare and send the message parts
       const messageParts = await prepareMessageParts(
-        chainResponse,
+        chainResponse.content,
         message.guild,
         botName
       );

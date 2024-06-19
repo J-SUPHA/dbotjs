@@ -1,6 +1,6 @@
 import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
 import { logDetailedInteraction } from "../memory/chatLog.js";
-import llmCall from "../chatlogic/llmCall.js";
+import { llmCall } from "../chatlogic/llmCall.js";
 import { sendInteractionMessageInParts } from "../helpers/splitMessages.js";
 import config from "../config.js";
 
