@@ -17,12 +17,16 @@ async function getLastThreeMessages(id, k, channelType) {
 }
 
 // Define the analysis template
-const ANALYSIS_TEMPLATE = `Analyze the following passage and determine if "Tensor" should reply next. Use the following criteria to make the decision:
+const ANALYSIS_TEMPLATE = `Analyze the following passage and determine if Tensor should reply next. Use the following criteria to make the decision:
 
-Criteria:
-1. If Tensor was asked a question.
-2. If the conversation is between two people and its Tensor's turn to talk.
-3. If Tensor was directly mentioned.
+Criteria when to reply, if any of the following conditions are met
+1. If Tensor was asked a question or told to do something.
+2. If the conversation seems to be directed towards Tensor.
+3. If Tensor was directly mentioned. Name can also be all lowercase, like 'tensor'.
+
+Example criteria when not to reply,
+1. If the last message was sent by Tensor.
+2. If another person was asked a question or the message was @-mentioned to another person.
 
 The response should be a JSON object with the key "shouldreply" and the value should be either true or false.
 

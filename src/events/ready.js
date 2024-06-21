@@ -36,7 +36,10 @@ async function registerCommands(commandsArray, token) {
 function resetInactivityTimer(client, message) {
   const channelId = message.channelId;
 
-  if (inactivityTimers[channelId]) clearTimeout(inactivityTimers[channelId]);
+  if (inactivityTimers[channelId]) {
+    clearTimeout(inactivityTimers[channelId]);
+    console.log(`Cleared timer for channel ${channelId}`);
+  }
 
   inactivityTimers[channelId] = setTimeout(async () => {
     console.log(
@@ -72,7 +75,10 @@ function resetInactivityTimer(client, message) {
 
     // Optionally, remove the timer if it's no longer needed after the task is performed
     delete inactivityTimers[channelId];
+    console.log(`Timer removed for channel ${channelId}`);
   }, INACTIVITY_PERIOD);
+
+  console.log(`Set timer for channel ${channelId}`);
 }
 
 function shouldIgnoreMessage(message, client) {
