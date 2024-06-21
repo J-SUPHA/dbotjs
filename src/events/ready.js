@@ -2,16 +2,10 @@ import { promises as fs } from "fs";
 import path from "path";
 import { REST, Routes } from "discord.js";
 import { createTables } from "#memory/createdb";
-import { processMessage } from "../memory/responseHandler.js";
 import config from "../config.js";
-import {} from "dotenv/config"; // Import dotenv to use environment variables
-import { shouldReply } from "../helpers/shouldReply.js";
-import { forcedInteractionPromptFormatter } from "../memory/promptFormatter.js";
-import { llmChatCall } from "../chatlogic/llmCall.js";
-import { sendInteractionMessageInParts } from "../helpers/splitMessages.js";
-
-const INACTIVITY_PERIOD = process.env.INACTIVITY_PERIOD || 10 * 1 * 1000; // 10 seconds by default
-const inactivityTimers = {}; // Object to store timers for each channel
+import {} from "dotenv/config";
+import { resetInactivityTimer } from "./timers.js";
+import { shouldIgnoreMessage } from "../chatlogic/responseLogic.js";
 
 async function registerCommands(commandsArray, token) {
   const rest = new REST().setToken(token);
@@ -33,67 +27,8 @@ async function registerCommands(commandsArray, token) {
   }
 }
 
-function resetInactivityTimer(client, message) {
-  const channelId = message.channelId;
-
-  if (inactivityTimers[channelId]) {
-    clearTimeout(inactivityTimers[channelId]);
-    console.log(`Cleared timer for channel ${channelId}`);
-  }
-
-  inactivityTimers[channelId] = setTimeout(async () => {
-    console.log(
-      `No activity detected for the inactivity period in channel ${channelId}. Performing scheduled tasks...`
-    );
-
-    try {
-      const replyTaskBool = await shouldReply(client, message);
-      console.log("Should bot reply next?", replyTaskBool);
-
-      if (replyTaskBool) {
-        // Generate a prompt using some internal logic or context
-        const { promptTemplate, messageObjects } =
-          await forcedInteractionPromptFormatter(message);
-
-        const chainResponse = await llmChatCall(
-          promptTemplate,
-          messageObjects,
-          []
-        );
-
-        // Send the response directly to the channel
-        const channel = client.channels.cache.get(channelId);
-        if (channel) {
-          sendInteractionMessageInParts(message, chainResponse.content);
-        } else {
-          console.error(`Channel with ID ${channelId} not found.`);
-        }
-      }
-    } catch (error) {
-      console.error("Error determining if bot should reply:", error);
-    }
-
-    // Optionally, remove the timer if it's no longer needed after the task is performed
-    delete inactivityTimers[channelId];
-    console.log(`Timer removed for channel ${channelId}`);
-  }, INACTIVITY_PERIOD);
-
-  console.log(`Set timer for channel ${channelId}`);
-}
-
-function shouldIgnoreMessage(message, client) {
-  return (
-    (message.channel.guildId &&
-      !config.channelIds.includes(message.channelId)) ||
-    message.author.username === client.user.username ||
-    config.ignorePatterns.some((pattern) =>
-      message.cleanContent.startsWith(pattern)
-    )
-  );
-}
-
 async function execute(client, sharedState, channels) {
-  const token = process.env.BOT_TOKEN; // Use the token from environment variables
+  const token = process.env.BOT_TOKEN;
   const commandsDir = path.resolve("./src/commands");
   let commandFiles;
 
@@ -114,7 +49,7 @@ async function execute(client, sharedState, channels) {
         const command = await import(commandPath);
 
         if (command && typeof command.create === "function") {
-          const cmd = command.create(); // No need to call toJSON() since create() returns JSON
+          const cmd = command.create();
           commandsArray.push(cmd);
           console.log(`Command registered: ${cmd.name}`);
         } else {
@@ -131,7 +66,6 @@ async function execute(client, sharedState, channels) {
   createTables();
   console.log(`Successfully logged in as ${client.user.username}!`);
 
-  // Add event listener to reset the timer on user activity in specific channels
   client.on("messageCreate", (message) => {
     if (!shouldIgnoreMessage(message, client)) {
       resetInactivityTimer(client, message);

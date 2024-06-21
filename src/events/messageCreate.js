@@ -1,5 +1,5 @@
-import { processMessage } from "../memory/responseHandler.js";
-import config from "../config.js";
+import { processMessage } from "../chatlogic/responseHandler.js";
+import { shouldIgnoreMessage } from "../chatlogic/responseLogic.js";
 
 export default {
   name: "messageCreate",
@@ -15,14 +15,3 @@ export default {
     }
   },
 };
-
-function shouldIgnoreMessage(message, client) {
-  return (
-    (message.channel.guildId &&
-      !config.channelIds.includes(message.channelId)) ||
-    message.author.username === client.user.username ||
-    config.ignorePatterns.some((pattern) =>
-      message.cleanContent.startsWith(pattern)
-    )
-  );
-}

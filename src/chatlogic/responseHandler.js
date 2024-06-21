@@ -1,5 +1,8 @@
-import { promptFormatter, systemPromptFormatter } from "./promptFormatter.js";
-import { llmCall, llmChatCall } from "../chatlogic/llmCall.js";
+import {
+  promptFormatter,
+  systemPromptFormatter,
+} from "../memory/promptFormatter.js";
+import { llmCall, llmChatCall } from "./llmCall.js";
 import imageCaption from "../tools/imageCaption.js";
 import { logDetailedMessage } from "../memory/chatLog.js";
 import getMessageType from "../helpers/message-type.js";
@@ -69,7 +72,9 @@ async function handleChannelReply(message, client, captionResponse) {
 
 // Main function to process messages
 async function processMessage(message, client) {
-  const userName = message.author.globalName;
+  const userName = message.member
+    ? message.member.displayName
+    : message.author.globalName;
   const botName = client.user.username;
 
   try {
@@ -97,6 +102,7 @@ async function processMessage(message, client) {
       if (shouldReturn || replyReturn) return;
     } else {
       // Log the user's message before generating the response
+      console.log(`${userName}: ${message.cleanContent}${captionResponse}`);
       await logDetailedMessage(
         message,
         client,
@@ -140,7 +146,7 @@ async function processMessage(message, client) {
       `\n${botName}: `,
     ]);
 
-    console.log(chainResponse.content);
+    console.log(`${botName}: ${chainResponse.content}`);
     // Stop showing typing indicator
     typing = false;
 
