@@ -2,12 +2,11 @@ import { promises as fs } from "fs";
 import path from "path";
 import { REST, Routes } from "discord.js";
 import { createTables } from "#memory/createdb";
-import config from "../config.js";
 import {} from "dotenv/config";
 import { resetInactivityTimer } from "./timers.js";
 import { shouldIgnoreMessage } from "../chatlogic/responseLogic.js";
 
-async function registerCommands(commandsArray, token) {
+async function registerCommands(commandsArray, token, sharedState) {
   const rest = new REST().setToken(token);
 
   try {
@@ -15,9 +14,12 @@ async function registerCommands(commandsArray, token) {
       `Started refreshing ${commandsArray.length} application (/) commands globally.`
     );
 
-    const data = await rest.put(Routes.applicationCommands(config.clientId), {
-      body: commandsArray,
-    });
+    const data = await rest.put(
+      Routes.applicationCommands(sharedState.application.id),
+      {
+        body: commandsArray,
+      }
+    );
 
     console.log(
       `Successfully reloaded ${data.length} application (/) commands globally.`
@@ -28,6 +30,7 @@ async function registerCommands(commandsArray, token) {
 }
 
 async function execute(client, sharedState, channels) {
+  console.log("sharedState in ready event:", sharedState.application.id);
   const token = process.env.BOT_TOKEN;
   const commandsDir = path.resolve("./src/commands");
   let commandFiles;
@@ -61,7 +64,7 @@ async function execute(client, sharedState, channels) {
     }
   }
 
-  await registerCommands(commandsArray, token);
+  await registerCommands(commandsArray, token, sharedState);
 
   createTables();
   console.log(`Successfully logged in as ${client.user.username}!`);
