@@ -6,52 +6,37 @@ import { PromptTemplate } from "@langchain/core/prompts";
 import { getLastXMessages } from "../memory/chatlogFunctions.js";
 import getMessageType from "../helpers/message-type.js";
 
-async function getLastThreeMessages(id, k, channelType) {
+async function getLastMessages(id, k, channelType) {
   const messages = await getLastXMessages(id, k, channelType);
-
-  const formattedMessages = messages
-    .map((msg) => `${msg.name}: ${msg.clean_content}`)
-    .join("\n");
-
-  return formattedMessages;
+  return messages.map((msg) => `${msg.name}: ${msg.clean_content}`).join("\n");
 }
 
-async function createChain(client) {
-  const botName = client.user.username;
-  // Define the analysis template
-  const ANALYSIS_TEMPLATE = `Analyze the following passage and determine if ${botName} should reply next. Use the following criteria to make the decision:
+async function createPromptTemplate(botName, templateString) {
+  return PromptTemplate.fromTemplate(
+    templateString
+      .replace(/{botName}/g, botName)
+      .replace(/{botNameLower}/g, botName.toLowerCase())
+  );
+}
 
-Criteria when to reply, if any of the following conditions are met
-1. If ${botName} was asked a question or told to do something.
-2. If the conversation seems to be directed towards ${botName}.
-3. If '${botName}' or '${botName.toLowerCase()}' was directly mentioned. 
+function createSchema(schemaDefinition) {
+  return z.object(schemaDefinition);
+}
 
-Example criteria when not to reply,
-1. If the last message was sent by ${botName}.
-2. If another person was asked a question or the message was @-mentioned to another person.
-
-The response should be a JSON object with the key "shouldreply" and the value should be either true or false.
-
-Passage:
-{input}
-`;
-
-  const prompt = PromptTemplate.fromTemplate(ANALYSIS_TEMPLATE);
-
-  // Define the simplified schema using Zod
-  const schema = z.object({
-    shouldreply: z.boolean().describe("Whether the person should reply next"),
-  });
-
-  // Initialize and bind the model
+async function createChain(
+  client,
+  promptTemplate,
+  schema,
+  modelName = "llama3"
+) {
   const model = new OllamaFunctions({
     temperature: 0.1,
-    model: "llama3",
+    model: modelName,
   }).bind({
     functions: [
       {
-        name: "should_reply",
-        description: "Determines if the person should reply next.",
+        name: "analysis_function",
+        description: "Analyzes the input based on the given criteria.",
         parameters: {
           type: "object",
           properties: zodToJsonSchema(schema).properties,
@@ -59,33 +44,63 @@ Passage:
       },
     ],
     function_call: {
-      name: "should_reply",
+      name: "analysis_function",
     },
   });
 
-  // Use a JsonOutputFunctionsParser to get the parsed JSON response directly
-  const chain = await prompt
-    .pipe(model)
-    .pipe(new JsonOutputFunctionsParser(schema));
-
-  return chain;
+  return promptTemplate.pipe(model).pipe(new JsonOutputFunctionsParser(schema));
 }
 
-// an async function that will take the client, a channel id, and return a boolean if the bot should reply
-export async function shouldReply(client, message) {
+export async function analyzeMessages(
+  client,
+  message,
+  templateString,
+  schemaDefinition,
+  modelName = "llama3"
+) {
+  const botName = client.user.username;
   const messageType = getMessageType(message);
-  const messages = await getLastThreeMessages(
-    message.channelId,
-    5,
-    messageType
-  );
-  console.log(messages);
+  const messages = await getLastMessages(message.channelId, 5, messageType);
 
-  const chain = await createChain(client);
+  const promptTemplate = await createPromptTemplate(botName, templateString);
+  const schema = createSchema(schemaDefinition);
+  const chain = await createChain(client, promptTemplate, schema, modelName);
 
   const response = await chain.invoke({
     input: messages,
   });
 
-  return response.shouldreply;
+  return response;
+}
+
+// Example usage for shouldReply
+const SHOULD_REPLY_TEMPLATE = `
+Analyze the following messages and use them as context to determine if {botName} should reply next. Use the following criteria to make the decision:
+
+Criteria when to reply, if any of the following conditions are met:
+1. If {botName} was asked a question, told to do something, greeted or mentioned in a way that warrants a response.
+2. If the conversation seems to be directed towards {botName}.
+3. If '{botName}' or '{botNameLower}' was directly mentioned.
+
+Example criteria when not to reply:
+1. If the last message was sent by {botName}.
+2. If another person was asked a question or the message was @-mentioned to another person.
+
+The response should be a JSON object with the key "shouldreply" and the value should be either true or false.
+
+Messages: {input}
+`;
+
+const SHOULD_REPLY_SCHEMA = {
+  shouldreply: z.boolean().describe("Whether the person should reply next"),
+};
+
+export async function shouldReply(client, message) {
+  const result = await analyzeMessages(
+    client,
+    message,
+    SHOULD_REPLY_TEMPLATE,
+    SHOULD_REPLY_SCHEMA
+  );
+  return result.shouldreply;
 }

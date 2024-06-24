@@ -98,7 +98,7 @@ async function getMessageObjects(messages, client) {
   return messages.map((msg) =>
     msg.name === client.user.username
       ? new AIMessage(msg.clean_content)
-      : new HumanMessage(msg.clean_content)
+      : new HumanMessage(`${msg.name}: ${msg.clean_content}`)
   );
 }
 

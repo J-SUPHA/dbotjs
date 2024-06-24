@@ -4,7 +4,18 @@ import { REST, Routes } from "discord.js";
 import { createTables } from "#memory/createdb";
 import {} from "dotenv/config";
 import { resetInactivityTimer } from "./timers.js";
-import { shouldIgnoreMessage } from "../chatlogic/responseLogic.js";
+import config from "../config.js";
+
+function shouldIgnoreMessage(message, client) {
+  return (
+    (message.channel.guildId &&
+      !config.channelIds.includes(message.channelId)) ||
+    message.author.username === client.user.username ||
+    config.ignorePatterns.some((pattern) =>
+      message.cleanContent.startsWith(pattern)
+    )
+  );
+}
 
 async function registerCommands(commandsArray, token, sharedState) {
   const rest = new REST().setToken(token);
@@ -69,18 +80,36 @@ async function execute(client, sharedState, channels) {
   createTables();
   console.log(`Successfully logged in as ${client.user.username}!`);
 
-  client.on("messageCreate", (message) => {
-    if (!shouldIgnoreMessage(message, client)) {
-      resetInactivityTimer(client, message);
+  let lastMessageAuthor = null;
+
+  client.on("messageCreate", async (message) => {
+    try {
+      if (!shouldIgnoreMessage(message, client)) {
+        // Check if the last message was not from the bot
+        if (lastMessageAuthor !== client.user.id) {
+          await resetInactivityTimer(client, message);
+        }
+        // Update the last message author
+        lastMessageAuthor = message.author.id;
+      }
+    } catch (error) {
+      console.error("Error processing message:", error);
     }
   });
 
-  client.on("interactionCreate", (interaction) => {
-    if (
-      interaction.isMessageComponent() &&
-      !shouldIgnoreMessage(interaction.message, client)
-    ) {
-      resetInactivityTimer(client, interaction.message);
+  client.on("interactionCreate", async (interaction) => {
+    try {
+      if (
+        interaction.isMessageComponent() &&
+        !shouldIgnoreMessage(interaction.message, client)
+      ) {
+        // For interactions, we always reset the timer as they are user-initiated
+        await resetInactivityTimer(client, interaction.message);
+        // Update the last message author to the user who interacted
+        lastMessageAuthor = interaction.user.id;
+      }
+    } catch (error) {
+      console.error("Error processing interaction:", error);
     }
   });
 }

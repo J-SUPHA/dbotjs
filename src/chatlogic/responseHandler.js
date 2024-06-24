@@ -111,16 +111,18 @@ async function processMessage(message, client) {
     }
 
     // Format the prompt for the language model call
-    const prompt = await promptFormatter(
-      message,
-      client,
-      message.cleanContent + captionResponse
-    );
+    // const prompt = await promptFormatter(
+    //   message,
+    //   client,
+    //   message.cleanContent + captionResponse
+    // );
 
     const { promptTemplate, messageObjects } = await systemPromptFormatter(
       message,
       client
     );
+    console.log("Prompt template:", promptTemplate);
+    console.log("Message objects:", messageObjects);
 
     let typing = true;
 
