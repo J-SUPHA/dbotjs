@@ -47,6 +47,20 @@ export async function resetInactivityTimer(client, message) {
       console.log("Should bot reply next?", replyTaskBool);
 
       if (replyTaskBool) {
+        let typing = true;
+
+        // Function to keep sending typing indicator
+        const keepTyping = async () => {
+          while (typing) {
+            await message.channel.sendTyping();
+            await new Promise((resolve) => setTimeout(resolve, 5000)); // Discord typing status lasts for 10 seconds, refresh every 5 seconds
+          }
+        };
+
+        // Start showing typing indicator
+        keepTyping();
+
+        // Call the language model to generate a response
         const { promptTemplate, messageObjects } =
           await forcedInteractionPromptFormatter(message);
 
@@ -58,14 +72,11 @@ export async function resetInactivityTimer(client, message) {
 
         const lastMessageFromBot = await isLastMessageFromBot(channel);
         if (!lastMessageFromBot) {
-          await sendInteractionMessageInParts(
-            channel,
-            chainResponse,
-            messageObjects
-          );
+          await sendInteractionMessageInParts(message, chainResponse.content);
         } else {
           console.log("Last message was from a bot. Skipping response.");
         }
+        typing = false;
       }
     } catch (error) {
       console.error("Error in inactivity timer task:", error);

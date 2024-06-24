@@ -30,7 +30,7 @@ async function createChain(
   modelName = "llama3"
 ) {
   const model = new OllamaFunctions({
-    temperature: 0.1,
+    temperature: 0.2,
     model: modelName,
   }).bind({
     functions: [
@@ -96,11 +96,24 @@ const SHOULD_REPLY_SCHEMA = {
 };
 
 export async function shouldReply(client, message) {
-  const result = await analyzeMessages(
-    client,
-    message,
-    SHOULD_REPLY_TEMPLATE,
-    SHOULD_REPLY_SCHEMA
-  );
-  return result.shouldreply;
+  const results = [];
+
+  for (let i = 0; i < 3; i++) {
+    const result = await analyzeMessages(
+      client,
+      message,
+      SHOULD_REPLY_TEMPLATE,
+      SHOULD_REPLY_SCHEMA
+    );
+    console.log("shouldReply result:", result);
+    results.push(result.shouldreply);
+  }
+  console.log("shouldReply results:", results);
+
+  const trueCount = results.filter(Boolean).length;
+  const falseCount = results.length - trueCount;
+  console.log("trueCount:", trueCount);
+  console.log("falseCount:", falseCount);
+  console.log("The result is:", trueCount > falseCount);
+  return trueCount > falseCount;
 }

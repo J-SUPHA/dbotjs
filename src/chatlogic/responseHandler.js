@@ -121,8 +121,8 @@ async function processMessage(message, client) {
       message,
       client
     );
-    console.log("Prompt template:", promptTemplate);
-    console.log("Message objects:", messageObjects);
+    // console.log("Prompt template:", promptTemplate);
+    // console.log("Message objects:", messageObjects);
 
     let typing = true;
 
