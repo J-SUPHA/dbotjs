@@ -1,5 +1,6 @@
-import { processMessage } from "../memory/responseHandler.js";
-import config from "../config.js";
+import { processMessage } from "../chatlogic/responseHandler.js";
+import { shouldIgnoreMessage } from "../chatlogic/responseLogic.js";
+import { resetInactivityTimer } from "../events/timers.js";
 
 export default {
   name: "messageCreate",
@@ -10,19 +11,9 @@ export default {
 
     try {
       await processMessage(message, client);
+      await resetInactivityTimer(client, message);
     } catch (error) {
       console.error("Error processing message in messageCreate event:", error);
     }
   },
 };
-
-function shouldIgnoreMessage(message, client) {
-  return (
-    (message.channel.guildId &&
-      !config.channelIds.includes(message.channelId)) ||
-    message.author.username === client.user.username ||
-    config.ignorePatterns.some((pattern) =>
-      message.cleanContent.startsWith(pattern)
-    )
-  );
-}

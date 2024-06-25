@@ -1,5 +1,8 @@
-import { promptFormatter } from "./promptFormatter.js";
-import llmCall from "../chatlogic/llmCall.js";
+import {
+  promptFormatter,
+  systemPromptFormatter,
+} from "../memory/promptFormatter.js";
+import { llmCall, llmChatCall } from "./llmCall.js";
 import imageCaption from "../tools/imageCaption.js";
 import { logDetailedMessage } from "../memory/chatLog.js";
 import getMessageType from "../helpers/message-type.js";
@@ -69,7 +72,9 @@ async function handleChannelReply(message, client, captionResponse) {
 
 // Main function to process messages
 async function processMessage(message, client) {
-  const userName = message.author.globalName;
+  const userName = message.member
+    ? message.member.displayName
+    : message.author.globalName;
   const botName = client.user.username;
 
   try {
@@ -97,6 +102,7 @@ async function processMessage(message, client) {
       if (shouldReturn || replyReturn) return;
     } else {
       // Log the user's message before generating the response
+      console.log(`${userName}: ${message.cleanContent}${captionResponse}`);
       await logDetailedMessage(
         message,
         client,
@@ -105,11 +111,18 @@ async function processMessage(message, client) {
     }
 
     // Format the prompt for the language model call
-    const prompt = await promptFormatter(
+    // const prompt = await promptFormatter(
+    //   message,
+    //   client,
+    //   message.cleanContent + captionResponse
+    // );
+
+    const { promptTemplate, messageObjects } = await systemPromptFormatter(
       message,
-      client,
-      message.cleanContent + captionResponse
+      client
     );
+    // console.log("Prompt template:", promptTemplate);
+    // console.log("Message objects:", messageObjects);
 
     let typing = true;
 
@@ -125,11 +138,17 @@ async function processMessage(message, client) {
     keepTyping();
 
     // Call the language model to generate a response
-    const chainResponse = await llmCall(prompt, [
+    // const chainResponse = await llmCall(prompt, [
+    //   `\n${userName}: `,
+    //   `\n${botName}: `,
+    // ]);
+
+    const chainResponse = await llmChatCall(promptTemplate, messageObjects, [
       `\n${userName}: `,
       `\n${botName}: `,
     ]);
 
+    console.log(`${botName}: ${chainResponse.content}`);
     // Stop showing typing indicator
     typing = false;
 
@@ -137,7 +156,7 @@ async function processMessage(message, client) {
     if (chainResponse) {
       // Prepare and send the message parts
       const messageParts = await prepareMessageParts(
-        chainResponse,
+        chainResponse.content,
         message.guild,
         botName
       );

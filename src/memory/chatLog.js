@@ -2,12 +2,6 @@ import { db } from "./index.js";
 import { logDetailedMessageVector } from "./vectorMemory.js";
 import { contentCleaner } from "../helpers/utilities.js";
 
-// try {
-//   await logDetailedMessageVector(message, client, formattedMessage);
-// } catch (error) {
-//   console.error("Error logging detailed message vector:", error);
-// }
-
 export async function logDetailedMessage(message, client, formattedMessage) {
   const botName = client.user.username;
 

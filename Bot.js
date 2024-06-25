@@ -72,7 +72,9 @@ class Bot {
       throw new Error("BOT_TOKEN is required in the .env file.");
     }
 
-    this.client.login(process.env.BOT_TOKEN);
+    this.client.login(process.env.BOT_TOKEN).then(() => {
+      this.sharedState.clientId = this.client.user.id;
+    });
   }
 }
 

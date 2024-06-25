@@ -6,7 +6,6 @@ import getMessageType from "../helpers/message-type.js";
 export async function historyFormatter(message, client) {
   const k = config.k;
   const channelType = getMessageType(message);
-
   try {
     const messages = await getLastXMessages(message.channelId, k, channelType);
     // Format the messages into a single string
@@ -64,7 +63,7 @@ export async function interactionHistoryFormatter(interaction) {
         }
       })
       .join("\n");
-    console.log("formattedMessages", formattedMessages);
+    // console.log("formattedMessages", formattedMessages);
     return formattedMessages;
   } catch (error) {
     console.error(
