@@ -26,8 +26,6 @@ async function handleAttachments(message, userName) {
   return captionResponse;
 }
 
-// Logic for handling channel messages
-// Logs the message if it has a reference and the reference is not from the bot
 async function handleChannelMessage(message, client, captionResponse) {
   try {
     if (message.reference) {
@@ -43,7 +41,7 @@ async function handleChannelMessage(message, client, captionResponse) {
         return true;
       }
     }
-    // Log the message if there is no reference
+
     await logDetailedMessage(
       message,
       client,
@@ -56,8 +54,6 @@ async function handleChannelMessage(message, client, captionResponse) {
   }
 }
 
-// Function to handle channel replies
-// Returns true if the reply is to another user, not the bot
 async function handleChannelReply(message, client, captionResponse) {
   try {
     if (message.mentions.repliedUser !== null) {
