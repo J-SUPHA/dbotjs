@@ -49,14 +49,16 @@ export async function createTables() {
   `);
 }
 
-// async function alterTables() {
-//   await db.exec(`
-//     ALTER TABLE messages ADD COLUMN use_in_memory BOOLEAN DEFAULT TRUE;
-//     ALTER TABLE messages ADD COLUMN generated_by_discord BOOLEAN DEFAULT FALSE;
-
-//     ALTER TABLE dms ADD COLUMN use_in_memory BOOLEAN DEFAULT TRUE;
-//     ALTER TABLE dms ADD COLUMN generated_by_discord BOOLEAN DEFAULT FALSE;
-//   `);
+// async function alterTables(db) {
+//   try {
+//     await db.exec(`
+//       ALTER TABLE messages ADD COLUMN caption STRING DEFAULT NULL;
+//       ALTER TABLE dms ADD COLUMN caption STRING DEFAULT NULL;
+//     `);
+//     console.log("Tables altered successfully");
+//   } catch (error) {
+//     console.error("Error altering tables:", error);
+//   }
 // }
 
-// alterTables();
+// alterTables(db);

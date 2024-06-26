@@ -43,7 +43,8 @@ export async function sendInteractionMessageInParts(interaction, content) {
     await logDetailedMessage(
       sentMessage,
       interaction.client,
-      sentMessage.cleanContent
+      sentMessage.cleanContent,
+      ""
     );
   } else {
     const messageParts = splitMessages(content, CHAR_LIMIT);
@@ -54,7 +55,8 @@ export async function sendInteractionMessageInParts(interaction, content) {
       await logDetailedMessage(
         sentMessage,
         interaction.client,
-        sentMessage.cleanContent
+        sentMessage.cleanContent,
+        ""
       );
       await delay(1000); // Wait for 1 second between message parts to avoid rate limiting
     }
