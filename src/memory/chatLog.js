@@ -51,7 +51,6 @@ export async function logDetailedMessage(
         displayName || username,
         type,
         tts,
-
         attachments && attachments.size > 0,
         null, // Using NULL as a placeholder for the image caption
         true, // Use in memory

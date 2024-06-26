@@ -47,9 +47,7 @@ async function handleAttachments(message) {
     [...message.attachments.values()].map(async (attachment) => {
       try {
         const response = await imageCaption(attachment.url);
-        return response
-          ? `<image>File Name:\n${message.attachments.name}\nGenerated Description:\n${response}</image>`
-          : "";
+        return response ? `<image>${response}</image>` : "";
       } catch (error) {
         console.error("Error processing attachment:", error);
         return "";
@@ -130,6 +128,7 @@ function startTyping(channel) {
 
 // Main function to process incoming messages
 async function processMessage(message, client) {
+  console.log("message: ", message.cleanContent);
   try {
     // Extract usernames from the message and client objects
     const userName = message.member?.displayName ?? message.author.globalName;
