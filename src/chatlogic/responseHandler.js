@@ -4,6 +4,7 @@ import imageCaption from "../tools/imageCaption.js";
 import { logDetailedMessage } from "../memory/chatLog.js";
 import getMessageType from "../helpers/message-type.js";
 import { prepareMessageParts } from "../helpers/splitMessages.js";
+import { Attachment } from "discord.js";
 
 // Function to log a message with its caption response
 async function logMessage(message, client, captionResponse) {
@@ -37,6 +38,7 @@ async function sendMessageParts(content, message, client, botName) {
 
 // Function to handle attachments in a message
 async function handleAttachments(message) {
+  console.log("message.attachments: ", message.attachments);
   // Return an empty string if there are no attachments
   if (message.attachments.size === 0) return "";
 
@@ -45,7 +47,9 @@ async function handleAttachments(message) {
     [...message.attachments.values()].map(async (attachment) => {
       try {
         const response = await imageCaption(attachment.url);
-        return response ? `<image>${response}</image>` : "";
+        return response
+          ? `<image>File Name:\n${message.attachments.name}\nGenerated Description:\n${response}</image>`
+          : "";
       } catch (error) {
         console.error("Error processing attachment:", error);
         return "";

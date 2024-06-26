@@ -22,7 +22,7 @@ export async function historyFormatter(message, client) {
           // Format the message another way if names are different: aka a user message
           return `${config.specialTokens.userTurn}${msg.name}: ${removeBotName(
             client.user.username,
-            msg.clean_content
+            msg.clean_content + msg.caption
           )}${config.specialTokens.endOfTurn}`;
         }
       })
@@ -63,7 +63,7 @@ export async function interactionHistoryFormatter(interaction) {
           // Format the message another way if names are different
           return `${config.specialTokens.userTurn}${msg.name}: ${removeBotName(
             interaction.client.user.username,
-            msg.clean_content
+            msg.clean_content + msg.caption
           )}${config.specialTokens.endOfTurn}`;
         }
       })

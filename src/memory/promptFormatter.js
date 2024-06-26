@@ -98,7 +98,7 @@ async function getMessageObjects(messages, client) {
   return messages.map((msg) =>
     msg.name === client.user.username
       ? new AIMessage(msg.clean_content)
-      : new HumanMessage(`${msg.name}: ${msg.clean_content}`)
+      : new HumanMessage(`${msg.name}: ${msg.clean_content + msg.caption}`)
   );
 }
 
@@ -111,6 +111,7 @@ export async function systemPromptFormatter(message, client) {
     const channeltype = await getMessageType(message);
     const history = await getLastXMessages(message.channelId, k, channeltype);
     const messageObjects = await getMessageObjects(history, client);
+    console.log("Message Objects:", messageObjects);
     const user = message.member
       ? message.member.displayName
       : message.author.globalName;
