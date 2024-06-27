@@ -47,7 +47,7 @@ async function handleAttachments(message) {
     [...message.attachments.values()].map(async (attachment) => {
       try {
         const response = await imageCaption(attachment.url);
-        return response ? `<image>${response}</image>` : "";
+        return response ? response : "";
       } catch (error) {
         console.error("Error processing attachment:", error);
         return "";

@@ -94,16 +94,18 @@ export async function promptFormatter(message, client, formattedMessage) {
   }
 }
 
+// Function to format messages into message objects
 async function getMessageObjects(messages, client) {
   return messages.map((msg) =>
     msg.name === client.user.username
       ? new AIMessage(msg.clean_content)
       : new HumanMessage(
-          `${msg.name}: ${msg.clean_content + (msg.caption ?? "")}`
+          `${msg.name}: ${msg.clean_content}${
+            msg.caption ? `<image>${msg.caption}</image>` : ""
+          }`
         )
   );
 }
-
 export async function systemPromptFormatter(message, client) {
   try {
     const k = config.k;
@@ -114,6 +116,7 @@ export async function systemPromptFormatter(message, client) {
     const history = await getLastXMessages(message.channelId, k, channeltype);
     const messageObjects = await getMessageObjects(history, client);
     console;
+    console.log("Message Objects:", messageObjects);
     // console.log("Message Objects:", messageObjects);
     const user = message.member
       ? message.member.displayName
