@@ -5,3 +5,4 @@ messages.db
 venv/
 .history
 .history/src/memory
+prompt.txt
