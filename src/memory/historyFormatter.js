@@ -1,7 +1,7 @@
 import removeBotName from "../chatlogic/removeBotName.js";
 import { getLastXMessages } from "./chatlogFunctions.js";
 import config from "../config.js";
-import getMessageType from "../helpers/message-type.js";
+import getMessageType from "../helpers/messageType.js";
 
 export async function historyFormatter(message, client) {
   const k = config.k;

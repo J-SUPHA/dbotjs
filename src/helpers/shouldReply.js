@@ -4,7 +4,7 @@ import { OllamaFunctions } from "langchain/experimental/chat_models/ollama_funct
 import { JsonOutputFunctionsParser } from "langchain/output_parsers";
 import { PromptTemplate } from "@langchain/core/prompts";
 import { getLastXMessages } from "../memory/chatlogFunctions.js";
-import getMessageType from "../helpers/message-type.js";
+import getMessageType from "./messageType.js";
 
 async function getLastMessages(id, k, channelType) {
   const messages = await getLastXMessages(id, k, channelType);

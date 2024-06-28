@@ -2,7 +2,7 @@ import { systemPromptFormatter } from "../memory/promptFormatter.js";
 import { llmChatCall } from "./llmCall.js";
 import imageCaption from "../tools/imageCaption.js";
 import { logDetailedMessage } from "../memory/chatLog.js";
-import getMessageType from "../helpers/message-type.js";
+import getMessageType from "../helpers/messageType.js";
 import { prepareMessageParts } from "../helpers/splitMessages.js";
 import { resetInactivityTimer, handleReplyTask } from "../events/timers.js";
 
@@ -38,7 +38,6 @@ async function sendMessageParts(content, message, client, botName) {
 
 // Function to handle attachments in a message
 async function handleAttachments(message) {
-  console.log("message.attachments: ", message.attachments);
   // Return an empty string if there are no attachments
   if (message.attachments.size === 0) return "";
 
@@ -128,7 +127,6 @@ function startTyping(channel) {
 
 // Main function to process incoming messages
 async function processMessage(message, client) {
-  console.log("message: ", message.cleanContent);
   try {
     // Extract usernames from the message and client objects
     const userName = message.member?.displayName ?? message.author.globalName;

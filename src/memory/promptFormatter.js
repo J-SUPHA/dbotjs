@@ -6,12 +6,12 @@ import {
 import { getCurrentDateFormatted } from "../helpers/dateFormatter.js";
 import { getLastXMessages } from "./chatlogFunctions.js";
 import config from "../config.js";
-import { HumanMessage, AIMessage } from "@langchain/core/messages";
+import { ChatMessage } from "@langchain/core/messages";
 import {
   ChatPromptTemplate,
   MessagesPlaceholder,
 } from "@langchain/core/prompts";
-import getMessageType from "../helpers/message-type.js";
+import getMessageType from "../helpers/messageType.js";
 
 async function channelType(message) {
   const user = message.member
@@ -94,18 +94,40 @@ export async function promptFormatter(message, client, formattedMessage) {
   }
 }
 
-// Function to format messages into message objects
-async function getMessageObjects(messages, client) {
+// export async function getMessageObjects(messages, client) {
+//   return messages.map((msg) =>
+//     msg.name === client.user.username
+//       ? new AIMessage({
+//           name: msg.name,
+//           content: `${msg.name}: ${msg.clean_content}`,
+//         })
+//       : new HumanMessage({
+//           name: msg.name,
+//           content: `${msg.name}: ${msg.clean_content}${
+//             msg.caption ? `<image>${msg.caption}</image>` : ""
+//           }`,
+//         })
+//   );
+// }
+
+export async function getMessageObjects(messages, client) {
   return messages.map((msg) =>
     msg.name === client.user.username
-      ? new AIMessage(msg.clean_content)
-      : new HumanMessage(
-          `${msg.name}: ${msg.clean_content}${
+      ? new ChatMessage({
+          name: msg.name,
+          content: `${msg.name}: ${msg.clean_content}`,
+          role: "assistant",
+        })
+      : new ChatMessage({
+          name: msg.name,
+          content: `${msg.name}: ${msg.clean_content}${
             msg.caption ? `<image>${msg.caption}</image>` : ""
-          }`
-        )
+          }`,
+          role: "user",
+        })
   );
 }
+
 export async function systemPromptFormatter(message, client) {
   try {
     const k = config.k;
@@ -115,9 +137,7 @@ export async function systemPromptFormatter(message, client) {
     const channeltype = await getMessageType(message);
     const history = await getLastXMessages(message.channelId, k, channeltype);
     const messageObjects = await getMessageObjects(history, client);
-    console;
-    console.log("Message Objects:", messageObjects);
-    // console.log("Message Objects:", messageObjects);
+    // console.log("Message objects:", messageObjects);
     const user = message.member
       ? message.member.displayName
       : message.author.globalName;

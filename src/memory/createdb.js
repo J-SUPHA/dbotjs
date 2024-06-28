@@ -48,6 +48,17 @@ export async function createTables() {
       description TEXT,
       FOREIGN KEY (message_id) REFERENCES dms (id)
     );
+
+    CREATE TABLE IF NOT EXISTS message_summaries (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      channel_id TEXT NOT NULL,
+      guild_id TEXT,
+      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+      summary TEXT NOT NULL,
+      message_ids JSON NOT NULL,
+      context JSON
+    );
+
   `);
 }
 

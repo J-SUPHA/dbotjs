@@ -1,5 +1,6 @@
 import { processMessage } from "../chatlogic/responseHandler.js";
 import { shouldIgnoreMessage } from "../chatlogic/responseLogic.js";
+import { resetInactivityTimer, handleSummarizationTask } from "./timers.js";
 
 export default {
   name: "messageCreate",
@@ -10,6 +11,12 @@ export default {
 
     try {
       await processMessage(message, client);
+      await resetInactivityTimer(
+        client,
+        message,
+        handleSummarizationTask,
+        "short"
+      );
     } catch (error) {
       console.error("Error processing message in messageCreate event:", error);
     }

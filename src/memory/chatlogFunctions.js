@@ -1,4 +1,4 @@
-import getMessageType from "../helpers/message-type.js";
+import getMessageType from "../helpers/messageType.js";
 import { db } from "./index.js";
 export async function deleteMessages(interaction) {
   let query;
@@ -109,8 +109,8 @@ export async function getLastXMessages(channel_id, k, channelType) {
 
   if (channelType === "dm") {
     query = `
-        SELECT name, clean_content, caption FROM (
-            SELECT COALESCE(global_name, user_name) AS name, clean_content, created_timestamp, caption
+        SELECT id, name, clean_content, created_timestamp, caption FROM (
+            SELECT id, COALESCE(global_name, user_name) AS name, clean_content, created_timestamp, caption
             FROM dms
             WHERE channel_id = ? AND use_in_memory = 1
             ORDER BY created_timestamp DESC
@@ -119,8 +119,8 @@ export async function getLastXMessages(channel_id, k, channelType) {
       `;
   } else if (channelType === "channel") {
     query = `
-        SELECT name, clean_content, caption FROM (
-            SELECT COALESCE(global_name, user_name) AS name, clean_content, created_timestamp, caption
+        SELECT id, name, clean_content, created_timestamp, caption FROM (
+            SELECT id, COALESCE(global_name, user_name) AS name, clean_content, created_timestamp, caption
             FROM messages
             WHERE channel_id = ? AND use_in_memory = 1
             ORDER BY created_timestamp DESC
@@ -133,7 +133,6 @@ export async function getLastXMessages(channel_id, k, channelType) {
 
   try {
     const messages = await db.all(query, channel_id, k);
-    // console.log(messages);
     return messages;
   } catch (error) {
     console.error(

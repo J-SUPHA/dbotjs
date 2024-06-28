@@ -2,7 +2,7 @@ import { shouldReply } from "../helpers/shouldReply.js";
 import { forcedInteractionPromptFormatter } from "../memory/promptFormatter.js";
 import { llmChatCall } from "../chatlogic/llmCall.js";
 import { sendInteractionMessageInParts } from "../helpers/splitMessages.js";
-
+import { handleSummarization } from "../memory/summarizer.js";
 const inactivityTimers = {}; // Object to store timers for each channel
 
 async function isLastMessageFromBot(channel) {
@@ -74,7 +74,6 @@ export async function handleReplyTask(client, channelId, message) {
 }
 
 export async function handleSummarizationTask(client, channelId, message) {
-  // Placeholder function for a summarization task
   try {
     const channel = await client.channels.fetch(channelId);
     if (!channel) {
@@ -82,13 +81,11 @@ export async function handleSummarizationTask(client, channelId, message) {
       return;
     }
 
-    // Add summarization logic here
-    console.log(`Summarization task executed for channel ${channelId}`);
+    await handleSummarization(client, channelId, message);
+
+    console.log(`Summarization task completed for channel ${channelId}`);
   } catch (error) {
     console.error("Error in summarization task:", error);
-  } finally {
-    delete inactivityTimers[channelId];
-    console.log(`Timer removed for channel ${channelId}`);
   }
 }
 
