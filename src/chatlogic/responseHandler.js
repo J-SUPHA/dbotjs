@@ -4,7 +4,7 @@ import imageCaption from "../tools/imageCaption.js";
 import { logDetailedMessage } from "../memory/chatLog.js";
 import getMessageType from "../helpers/message-type.js";
 import { prepareMessageParts } from "../helpers/splitMessages.js";
-import { Attachment } from "discord.js";
+import { resetInactivityTimer, handleReplyTask } from "../events/timers.js";
 
 // Function to log a message with its caption response
 async function logMessage(message, client, captionResponse) {
@@ -146,7 +146,10 @@ async function processMessage(message, client) {
       const shouldReturn =
         (await handleChannelMessage(message, client, captionResponse)) ||
         handleChannelReply(message, client);
-      if (shouldReturn) return;
+      if (shouldReturn) {
+        await resetInactivityTimer(client, message, handleReplyTask, "default");
+        return;
+      }
     } else {
       // Log the message if it's not a channel message
       await logMessage(message, client, captionResponse);

@@ -119,8 +119,8 @@ export async function getLastXMessages(channel_id, k, channelType) {
       `;
   } else if (channelType === "channel") {
     query = `
-        SELECT name, clean_content, caption, FROM (
-            SELECT COALESCE(global_name, user_name) AS name clean_content, created_timestamp, caption
+        SELECT name, clean_content, caption FROM (
+            SELECT COALESCE(global_name, user_name) AS name, clean_content, created_timestamp, caption
             FROM messages
             WHERE channel_id = ? AND use_in_memory = 1
             ORDER BY created_timestamp DESC
