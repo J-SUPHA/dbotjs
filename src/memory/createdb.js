@@ -58,9 +58,23 @@ export async function createTables() {
       message_ids JSON NOT NULL,
       context JSON
     );
-
   `);
 }
+
+// async function deleteTableMessageSummaries(db) {
+//   try {
+//     const sql = "DROP TABLE IF EXISTS message_summaries";
+//     await db.run(sql);
+//     console.log("Table 'message_summaries' deleted successfully.");
+//   } catch (error) {
+//     console.error("Error deleting table 'message_summaries':", error);
+//     throw error;
+//   }
+// }
+
+// // Usage example
+// // Assuming 'db' is your database connection object
+// deleteTableMessageSummaries(db);
 
 // async function alterTables(db) {
 //   try {

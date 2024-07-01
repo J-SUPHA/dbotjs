@@ -13,26 +13,26 @@ import { db } from "./index.js";
 // To Do: change the code so that it summarizes messages outside the last K messages
 
 export async function summarizationPromptFormatter(client, message) {
-  const k = config.k;
   const date = getCurrentDateFormatted();
   const channelType = await getMessageType(message);
   // number of messages to summarize
-  const numberOfMessages = 10;
+  const numberOfMessages = config.k;
   const history = await getLastXMessages(
     message.channelId,
     numberOfMessages,
     channelType
   );
+  const name = client.user.username;
   const messageObjects = await getMessageObjects(history, client);
 
-  const systemMessageContent = `You are an AI assistant tasked with summarizing Discord conversations. The current date is ${date}. This is a ${channelType} channel.
+  const systemMessageContent = `You are a female AI named ${name}. You are tasked with summarizing Discord conversations for the purpose of being used as memory. The current date is ${date}. This is a ${channelType} channel.
 
   Instructions for summarization:
   1. Provide a brief overview of the main topics discussed.
   2. Highlight any important decisions or conclusions reached.
-  3. Note any action items or future plans mentioned.
+  3. Note any actions described by the person or notable details about people.
   4. Summarize in a concise, bullet-point format.
-  5. Keep the summary under 200 words.
+  5. Keep the summary under 300 words.
 
   Please summarize the following conversation:`;
 
@@ -45,6 +45,7 @@ export async function summarizationPromptFormatter(client, message) {
 }
 
 export async function handleSummarization(client, channelId, message) {
+  const k = config.k;
   try {
     const channel = await client.channels.fetch(channelId);
     if (!channel) {
@@ -52,7 +53,7 @@ export async function handleSummarization(client, channelId, message) {
       return;
     }
 
-    const numberOfMessages = 10; // Number of messages to summarize
+    const numberOfMessages = k; // Number of messages to summarize
     const channelType = await getMessageType(message);
     let history = await getLastXMessages(
       channelId,
