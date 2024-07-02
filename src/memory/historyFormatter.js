@@ -1,4 +1,4 @@
-import removeBotName from "../chatlogic/removeBotName.js";
+import removeBotName from "../helpers/removeBotName.js";
 import { getLastXMessages } from "./chatlogFunctions.js";
 import config from "../config.js";
 import getMessageType from "../helpers/messageType.js";

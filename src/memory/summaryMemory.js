@@ -1,5 +1,5 @@
 import { db } from "./index.js";
-import removeBotName from "../chatlogic/removeBotName.js";
+import removeBotName from "../helpers/removeBotName.js";
 import { getLastXMessages } from "./chatlog-functions.js";
 import config from "../config.js";
 import getMessageType from "../utils/message-type.js";

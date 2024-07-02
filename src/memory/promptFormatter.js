@@ -133,8 +133,8 @@ export async function systemPromptFormatter(message, client) {
         new MessagesPlaceholder("messages"),
       ]);
     }
-    console.log("Prompt Template:", JSON.stringify(prompt, null, 2));
-    console.log("Message Objects:", JSON.stringify(messageObjects, null, 2));
+    // console.log("Prompt Template:", JSON.stringify(prompt, null, 2));
+    // console.log("Message Objects:", JSON.stringify(messageObjects, null, 2));
 
     return { promptTemplate: prompt, messageObjects };
   } catch (error) {

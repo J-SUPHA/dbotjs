@@ -27,6 +27,7 @@ const config = {
   ignorePatterns: configJson.ignorePatterns || [],
   k: configJson.K || 15,
   llmApiKey: process.env.OPENAI_API_KEY || "sk-blabhablahdosentmatter",
+  groqApiKey: process.env.GROQ_API_KEY || "gsk-blabhablahdosentmatter",
   ...configJson,
   channelIds: configJson.channelIds
     ? configJson.channelIds.map((id) => String(id))

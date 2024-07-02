@@ -1,5 +1,5 @@
 import { systemPromptFormatter } from "../memory/promptFormatter.js";
-import { llmChatCall } from "./llmCall.js";
+import { llmChatCall, llmChatCallOllama } from "./llmCall.js";
 import imageCaption from "../tools/imageCaption.js";
 import { logDetailedMessage } from "../memory/chatLog.js";
 import getMessageType from "../helpers/messageType.js";
@@ -163,19 +163,20 @@ async function processMessage(message, client) {
     const typing = startTyping(message.channel);
 
     // Call the language model with the formatted prompt
-    const chainResponse = await llmChatCall(promptTemplate, messageObjects, [
-      `\n${userName}: `,
-      `\n${botName}: `,
-    ]);
+    const chainResponse = await llmChatCallOllama(
+      promptTemplate,
+      messageObjects,
+      [`\n${userName}: `, `\n${botName}: `]
+    );
 
     // Stop typing simulation
     typing.stop();
 
-    console.log(`${botName}: ${chainResponse.content}`);
+    console.log(`${botName}: ${chainResponse}`);
 
     // Send the response from the language model in parts if necessary
     if (chainResponse) {
-      await sendMessageParts(chainResponse.content, message, client, botName);
+      await sendMessageParts(chainResponse, message, client, botName);
     } else {
       console.log(
         "No response received from llm. Ensure API key or llmBaseUrl is correctly set."

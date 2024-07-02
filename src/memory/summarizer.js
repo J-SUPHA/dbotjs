@@ -6,7 +6,7 @@ import {
   MessagesPlaceholder,
 } from "@langchain/core/prompts";
 import { getCurrentDateFormatted } from "../helpers/dateFormatter.js";
-import { llmChatCall } from "../chatlogic/llmCall.js";
+import { llmChatCall, llmChatCallOllama } from "../chatlogic/llmCall.js";
 import getMessageType from "../helpers/messageType.js";
 import { db } from "./index.js";
 
@@ -114,11 +114,11 @@ export async function handleSummarization(client, channelId, message) {
     });
 
     // Call the language model with the formatted prompt
-    const summary = await llmChatCall(promptTemplate, messageObjects, [
+    const summary = await llmChatCallOllama(promptTemplate, messageObjects, [
       "\nSummary: ",
     ]);
 
-    console.log("Generated summary:", summary.content);
+    console.log("Generated summary:", summary);
 
     // Store the new summary in the SQL database
     await db.run(
@@ -127,7 +127,7 @@ export async function handleSummarization(client, channelId, message) {
       [
         channelId,
         message.guildId || "dm",
-        summary.content,
+        summary,
         JSON.stringify(messageIds),
         JSON.stringify({
           channelType: channelType,
