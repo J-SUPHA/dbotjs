@@ -50,39 +50,6 @@ export async function getMessageObjects(messages, client) {
   );
 }
 
-// export async function systemPromptFormatter(message, client) {
-//   try {
-//     const k = config.k;
-
-//     const date = getCurrentDateFormatted();
-//     const filePath = "prompt.txt";
-//     const channeltype = await getMessageType(message);
-//     const history = await getLastXMessages(message.channelId, k, channeltype);
-//     const messageObjects = await getMessageObjects(history, client);
-//     const user = message.member
-//       ? message.member.displayName
-//       : message.author.globalName;
-//     const char = client.user.username;
-//     const templateFormatter = await loadAndFormatTemplate(filePath);
-
-//     const systemMessageContent = templateFormatter({
-//       char,
-//       user,
-//       date,
-//       channeltype,
-//     });
-
-//     const prompt = ChatPromptTemplate.fromMessages([
-//       ["system", systemMessageContent],
-//       new MessagesPlaceholder("messages"),
-//     ]);
-
-//     return { promptTemplate: prompt, messageObjects };
-//   } catch (error) {
-//     console.error("Error formatting system prompt:", error);
-//     throw error;
-//   }
-// }
 export async function systemPromptFormatter(message, client) {
   try {
     const k = config.k;
@@ -113,6 +80,7 @@ export async function systemPromptFormatter(message, client) {
       `SELECT * FROM message_summaries 
        WHERE channel_id = ? 
        AND JSON_EXTRACT(context, '$.messageCount') <= ?
+       AND use_in_memory = true
        AND JSON_ARRAY_LENGTH(JSON_EXTRACT(message_ids, '$')) > 0
        AND JSON_EXTRACT(message_ids, '$[0]') < ?
        ORDER BY created_at DESC 

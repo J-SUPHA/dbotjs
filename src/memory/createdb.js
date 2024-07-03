@@ -18,28 +18,11 @@ export async function createTables() {
       image_caption TEXT,
       use_in_memory BOOLEAN, 
       generated_by_discord BOOLEAN,  
-      caption TEXT,  
-      FOREIGN KEY (author_id) REFERENCES users (id)
-    );
-    
-    CREATE TABLE IF NOT EXISTS dms (
-      id TEXT PRIMARY KEY,
-      channel_id TEXT,
-      created_timestamp INTEGER,
-      content TEXT,
-      clean_content TEXT,
-      author_id TEXT,
-      user_name TEXT,
-      global_name TEXT,
-      type TEXT,
-      tts BOOLEAN,
-      has_attachments BOOLEAN,
-      image_caption TEXT,
-      use_in_memory BOOLEAN, 
-      generated_by_discord BOOLEAN, 
       caption TEXT,
+      is_dm BOOLEAN,
       FOREIGN KEY (author_id) REFERENCES users (id)
     );
+
     
     CREATE TABLE IF NOT EXISTS attachments (
       attachment_id TEXT PRIMARY KEY,

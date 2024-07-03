@@ -25,30 +25,16 @@ export async function deleteSummaries(interaction) {
 }
 
 export async function deleteMessages(interaction) {
-  let query;
-  const channelType = await getMessageType(interaction);
-
-  if (channelType === "dm") {
-    query = `
-      UPDATE dms
-      SET use_in_memory = 0
-      WHERE channel_id = ?
-      AND use_in_memory = 1
-      `;
-  } else if (channelType === "channel") {
-    query = `
-      UPDATE messages
-      SET use_in_memory = 0
-      WHERE channel_id = ?
-      AND use_in_memory = 1
-      `;
-  }
+  const query = `
+    UPDATE messages
+    SET use_in_memory = 0
+    WHERE channel_id = ?
+    AND use_in_memory = 1
+  `;
 
   try {
-    // Assuming db.run() resolves with an object that includes a property for the affected row count
     const result = await db.run(query, interaction.channelId);
-    // The property name might be `changes`, `rowCount`, or something else depending on your DB interface
-    const deletedCount = result.changes; // This is for sqlite3, adjust according to your DB interface
+    const deletedCount = result.changes; // Adjust according to your DB interface
 
     console.log(`Deleted ${deletedCount} messages.`);
     return deletedCount;
@@ -62,26 +48,13 @@ export async function deleteMessages(interaction) {
 }
 
 export async function deleteKMessages(interaction, K) {
-  let query;
-  const channelType = await getMessageType(interaction);
-
-  if (channelType === "dm") {
-    query = `
-      SELECT id
-      FROM dms
-      WHERE channel_id = ?
-      ORDER BY created_timestamp DESC
-      LIMIT ?
-    `;
-  } else if (channelType === "channel") {
-    query = `
-      SELECT id
-      FROM messages
-      WHERE channel_id = ?
-      ORDER BY created_timestamp DESC
-      LIMIT ?
-    `;
-  }
+  const query = `
+    SELECT id
+    FROM messages
+    WHERE channel_id = ?
+    ORDER BY created_timestamp DESC
+    LIMIT ?
+  `;
 
   try {
     // Fetch and log the IDs of messages to be updated
@@ -89,33 +62,19 @@ export async function deleteKMessages(interaction, K) {
     console.log(`Messages to update:`, messagesToUpdate);
 
     // Now perform the update
-    if (channelType === "dm") {
-      query = `
-        UPDATE dms
-        SET use_in_memory = 0
-        WHERE id IN (
-          SELECT id
-          FROM dms
-          WHERE channel_id = ?
-          ORDER BY created_timestamp DESC
-          LIMIT ?
-        )
-      `;
-    } else if (channelType === "channel") {
-      query = `
-        UPDATE messages
-        SET use_in_memory = 0
-        WHERE id IN (
-          SELECT id
-          FROM messages
-          WHERE channel_id = ?
-          ORDER BY created_timestamp DESC
-          LIMIT ?
-        )
-      `;
-    }
+    const updateQuery = `
+      UPDATE messages
+      SET use_in_memory = 0
+      WHERE id IN (
+        SELECT id
+        FROM messages
+        WHERE channel_id = ?
+        ORDER BY created_timestamp DESC
+        LIMIT ?
+      )
+    `;
 
-    const result = await db.run(query, interaction.channelId, K);
+    const result = await db.run(updateQuery, interaction.channelId, K);
     const updatedCount = result.changes;
     console.log(`Flagged ${updatedCount} messages as not to be used.`);
     return updatedCount;
@@ -129,31 +88,15 @@ export async function deleteKMessages(interaction, K) {
 }
 
 export async function getLastXMessages(channel_id, k, channelType) {
-  let query;
-
-  if (channelType === "dm") {
-    query = `
-        SELECT id, name, clean_content, created_timestamp, caption FROM (
-            SELECT id, COALESCE(global_name, user_name) AS name, clean_content, created_timestamp, caption
-            FROM dms
-            WHERE channel_id = ? AND use_in_memory = 1
-            ORDER BY created_timestamp DESC
-            LIMIT ?
-        ) sub ORDER BY created_timestamp ASC
-      `;
-  } else if (channelType === "channel") {
-    query = `
-        SELECT id, name, clean_content, created_timestamp, caption FROM (
-            SELECT id, COALESCE(global_name, user_name) AS name, clean_content, created_timestamp, caption
-            FROM messages
-            WHERE channel_id = ? AND use_in_memory = 1
-            ORDER BY created_timestamp DESC
-            LIMIT ?
-        ) sub ORDER BY created_timestamp ASC
-      `;
-  } else {
-    throw new Error("Invalid channel type");
-  }
+  const query = `
+    SELECT id, name, clean_content, created_timestamp, caption FROM (
+        SELECT id, COALESCE(global_name, user_name) AS name, clean_content, created_timestamp, caption
+        FROM messages
+        WHERE channel_id = ? AND use_in_memory = 1
+        ORDER BY created_timestamp DESC
+        LIMIT ?
+    ) sub ORDER BY created_timestamp ASC
+  `;
 
   try {
     const messages = await db.all(query, channel_id, k);
