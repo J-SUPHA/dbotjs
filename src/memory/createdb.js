@@ -56,6 +56,7 @@ export async function createTables() {
       created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
       summary TEXT NOT NULL,
       message_ids JSON NOT NULL,
+      use_in_memory BOOLEAN,
       context JSON
     );
   `);

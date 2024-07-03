@@ -1,5 +1,29 @@
 import getMessageType from "../helpers/messageType.js";
 import { db } from "./index.js";
+
+export async function deleteSummaries(interaction) {
+  const query = `
+    UPDATE message_summaries
+    SET use_in_memory = 0
+    WHERE channel_id = ?
+    AND use_in_memory = 1
+  `;
+
+  try {
+    const result = await db.run(query, interaction.channelId);
+    const updatedCount = result.changes; // Adjust according to your DB interface
+
+    console.log(`Updated ${updatedCount} message summaries.`);
+    return updatedCount;
+  } catch (error) {
+    console.error(
+      `Error updating message summaries with channel ID ${interaction.channelId}:`,
+      error
+    );
+    throw error;
+  }
+}
+
 export async function deleteMessages(interaction) {
   let query;
   const channelType = await getMessageType(interaction);

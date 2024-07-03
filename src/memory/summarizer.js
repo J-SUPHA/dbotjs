@@ -70,6 +70,7 @@ export async function handleSummarization(client, channelId, message) {
     const lastSummary = await db.get(
       `SELECT * FROM message_summaries 
        WHERE channel_id = ? 
+       AND use_in_memory = true
        ORDER BY created_at DESC 
        LIMIT 1`,
       [channelId]
@@ -122,13 +123,14 @@ export async function handleSummarization(client, channelId, message) {
 
     // Store the new summary in the SQL database
     await db.run(
-      `INSERT INTO message_summaries (channel_id, guild_id, summary, message_ids, context)
-       VALUES (?, ?, ?, ?, ?)`,
+      `INSERT INTO message_summaries (channel_id, guild_id, summary, message_ids, use_in_memory, context)
+       VALUES (?, ?, ?, ?, ?, ?)`,
       [
         channelId,
         message.guildId || "dm",
         summary,
         JSON.stringify(messageIds),
+        true,
         JSON.stringify({
           channelType: channelType,
           messageCount: numberOfMessages,

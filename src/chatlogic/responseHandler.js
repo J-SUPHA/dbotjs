@@ -163,11 +163,10 @@ async function processMessage(message, client) {
     const typing = startTyping(message.channel);
 
     // Call the language model with the formatted prompt
-    const chainResponse = await llmChatCallOllama(
-      promptTemplate,
-      messageObjects,
-      [`\n${userName}: `, `\n${botName}: `]
-    );
+    const chainResponse = await llmChatCall(promptTemplate, messageObjects, [
+      `\n${userName}: `,
+      `\n${botName}: `,
+    ]);
 
     // Stop typing simulation
     typing.stop();

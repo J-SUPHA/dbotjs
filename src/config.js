@@ -23,6 +23,8 @@ try {
 // Centralized configuration object
 const config = {
   llavaBaseUrl: configJson.llavaBaseUrl || "",
+  useSummaries: configJson.experimental.useSummaries || false,
+  useShouldReply: configJson.experimental.useShouldReply || false,
   botToken: process.env.BOT_TOKEN,
   ignorePatterns: configJson.ignorePatterns || [],
   k: configJson.K || 15,

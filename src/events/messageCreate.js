@@ -15,7 +15,7 @@ export default {
         client,
         message,
         handleSummarizationTask,
-        "short"
+        "long"
       );
     } catch (error) {
       console.error("Error processing message in messageCreate event:", error);
