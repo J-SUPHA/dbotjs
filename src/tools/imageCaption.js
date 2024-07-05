@@ -3,7 +3,7 @@ import sharp from "sharp";
 import config from "../config.js";
 
 export default async function imageCaption(link) {
-  const url = config.llavaBaseUrl + "/llava_caption";
+  const url = config.llavaBaseUrl + "/florence2_caption";
 
   // Function to fetch image from URL and convert to base64
   const imageToBase64 = async (imageUrl) => {

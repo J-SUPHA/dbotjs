@@ -27,6 +27,7 @@
     "duck-duck-scrape": "^2.2.5",
     "langchain": "^0.1.28",
     "mongodb": "^6.6.1",
+    "nodemon": "^3.1.4",
     "sharp": "^0.33.3",
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7"

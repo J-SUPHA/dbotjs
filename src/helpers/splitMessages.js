@@ -1,6 +1,6 @@
 import { replaceEmojiNamesWithIds } from "../helpers/utilities.js";
 import { logDetailedMessage } from "../memory/chatLog.js";
-import removeBotName from "../chatlogic/removeBotName.js";
+import removeBotName from "./removeBotName.js";
 
 // Helper function to create a delay
 function delay(ms) {
@@ -43,7 +43,8 @@ export async function sendInteractionMessageInParts(interaction, content) {
     await logDetailedMessage(
       sentMessage,
       interaction.client,
-      sentMessage.cleanContent
+      sentMessage.cleanContent,
+      ""
     );
   } else {
     const messageParts = splitMessages(content, CHAR_LIMIT);
@@ -54,7 +55,8 @@ export async function sendInteractionMessageInParts(interaction, content) {
       await logDetailedMessage(
         sentMessage,
         interaction.client,
-        sentMessage.cleanContent
+        sentMessage.cleanContent,
+        ""
       );
       await delay(1000); // Wait for 1 second between message parts to avoid rate limiting
     }

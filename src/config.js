@@ -23,10 +23,13 @@ try {
 // Centralized configuration object
 const config = {
   llavaBaseUrl: configJson.llavaBaseUrl || "",
+  useSummaries: configJson.experimental.useSummaries || false,
+  useShouldReply: configJson.experimental.useShouldReply || false,
   botToken: process.env.BOT_TOKEN,
   ignorePatterns: configJson.ignorePatterns || [],
   k: configJson.K || 15,
   llmApiKey: process.env.OPENAI_API_KEY || "sk-blabhablahdosentmatter",
+  groqApiKey: process.env.GROQ_API_KEY || "gsk-blabhablahdosentmatter",
   ...configJson,
   channelIds: configJson.channelIds
     ? configJson.channelIds.map((id) => String(id))

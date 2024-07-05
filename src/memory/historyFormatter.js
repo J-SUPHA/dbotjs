@@ -1,7 +1,7 @@
-import removeBotName from "../chatlogic/removeBotName.js";
+import removeBotName from "../helpers/removeBotName.js";
 import { getLastXMessages } from "./chatlogFunctions.js";
 import config from "../config.js";
-import getMessageType from "../helpers/message-type.js";
+import getMessageType from "../helpers/messageType.js";
 
 export async function historyFormatter(message, client) {
   const k = config.k;
@@ -22,7 +22,7 @@ export async function historyFormatter(message, client) {
           // Format the message another way if names are different: aka a user message
           return `${config.specialTokens.userTurn}${msg.name}: ${removeBotName(
             client.user.username,
-            msg.clean_content
+            msg.clean_content + msg.caption
           )}${config.specialTokens.endOfTurn}`;
         }
       })
@@ -58,7 +58,7 @@ export async function interactionHistoryFormatter(interaction) {
           // Format the message another way if names are different
           return `${config.specialTokens.userTurn}${msg.name}: ${removeBotName(
             interaction.client.user.username,
-            msg.clean_content
+            msg.clean_content + msg.caption
           )}${config.specialTokens.endOfTurn}`;
         }
       })
