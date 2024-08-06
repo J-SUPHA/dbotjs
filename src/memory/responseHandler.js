@@ -110,6 +110,7 @@ async function processMessage(message, client) {
       client,
       message.cleanContent + captionResponse
     );
+    // console.log("Prompt: ", prompt);
 
     let typing = true;
 

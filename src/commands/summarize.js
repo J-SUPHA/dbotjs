@@ -1,8 +1,7 @@
 import { SlashCommandBuilder } from "discord.js";
-import { getLastXMessages } from "../memory/chatlog-functions.js";
+import { getLastXMessages } from "../memory/chatlogFunctions.js";
 import { logDetailedInteraction } from "../memory/chatLog.js";
 import llmCall from "../chatlogic/llmCall.js";
-import sendMessageInParts from "../helpers/splitMessages.js";
 import config from "../config.js";
 import removeBotName from "../chatlogic/removeBotName.js";
 

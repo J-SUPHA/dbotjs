@@ -20,13 +20,13 @@
     "@qdrant/js-client-rest": "^1.9.0",
     "axios": "^1.6.8",
     "better-sqlite3": "^9.4.3",
-    "chromadb": "^1.8.1",
     "deno": "^0.1.1",
     "discord.js": "^14.11.0",
     "dotenv": "^16.4.5",
     "duck-duck-scrape": "^2.2.5",
     "langchain": "^0.1.28",
     "mongodb": "^6.6.1",
+    "openai": "^4.54.0",
     "sharp": "^0.33.3",
     "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7"
@@ -36,5 +36,8 @@
     "#commands/*": "./src/commands/*.js",
     "#memory/*": "./src/memory/*.js"
   },
-  "type": "module"
+  "type": "module",
+  "devDependencies": {
+    "nodemon": "^3.1.4"
+  }
 }

@@ -28,6 +28,7 @@ export async function historyFormatter(message, client) {
         }
       })
       .join("\n");
+    console.log("formattedMessages", formattedMessages);
 
     return formattedMessages;
   } catch (error) {

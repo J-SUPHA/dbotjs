@@ -59,6 +59,7 @@ const loadAndFormatTemplate = async (filePath) => {
 export async function promptFormatter(message, client, formattedMessage) {
   try {
     const history = await historyFormatter(message, client);
+    console.log("history: ", history);
     const date = getCurrentDateFormatted();
     const filePath = "prompt.txt";
     const channeltype = await channelType(message);
