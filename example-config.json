@@ -10,6 +10,15 @@
     "repetitionPenalty": 1.2,
     "stop": ["\n"]
   },
+  "specialTokens": {
+    "system": "<|begin_of_text|><|start_header_id|> system <|end_header_id|>\n",
+
+    "userTurn": "<|eot_id|><|start_header_id|>user<|end_header_id|>\n",
+
+    "botTurn": "<|eot_id|><|start_header_id|>assistant<|end_header_id|>\n",
+
+    "endOfTurn": ""
+  },
   "ignorePatterns": [".", "!", "/"],
   "K": 15
 }
