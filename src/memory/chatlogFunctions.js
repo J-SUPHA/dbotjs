@@ -104,10 +104,12 @@ export async function deleteKMessages(interaction, K) {
   }
 }
 
-export async function getLastXMessages(channel_id, k) {
+export async function getLastXMessages(message, k) {
   let query;
-  const channelType = await getMessageType(channel_id);
-
+  const channelType = await getMessageType(message);
+  console.log("Channel type:", channelType);
+  const channel_id = message.channelId;
+  console.log("Channel ID:", channel_id);
   if (channelType === "dm") {
     query = `
         SELECT name, clean_content FROM (

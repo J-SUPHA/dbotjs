@@ -8,7 +8,7 @@ export async function historyFormatter(message, client) {
   const channelType = getMessageType(message);
 
   try {
-    const messages = await getLastXMessages(message.channelId, k, channelType);
+    const messages = await getLastXMessages(message, k);
     // Format the messages into a single string
     const formattedMessages = messages
       .map((msg) => {
