@@ -1,5 +1,5 @@
 import axios from "axios";
-import sharp from "sharp";
+import https from "https";
 import config from "../config.js";
 
 export default async function imageCaption(link) {
@@ -7,22 +7,27 @@ export default async function imageCaption(link) {
 
   // Function to fetch image from URL and convert to base64
   const imageToBase64 = async (imageUrl) => {
-    try {
-      // Fetch image as a stream
-      const response = await axios({
-        method: "get",
-        url: imageUrl,
-        responseType: "arraybuffer",
+    return new Promise((resolve, reject) => {
+      https.get(imageUrl, (response) => {
+        if (response.statusCode !== 200) {
+          reject(new Error(`Failed to fetch image: ${response.statusCode}`));
+          return;
+        }
+
+        const data = [];
+        response.on('data', (chunk) => {
+          data.push(chunk);
+        });
+
+        response.on('end', () => {
+          const buffer = Buffer.concat(data);
+          const base64Image = buffer.toString('base64');
+          resolve(base64Image);
+        });
+      }).on('error', (err) => {
+        reject(err);
       });
-      // Convert the response data to a Buffer
-      const imageBuffer = Buffer.from(response.data, "binary");
-      // Convert image to JPEG format using sharp, if necessary
-      const convertedBuffer = await sharp(imageBuffer).jpeg().toBuffer();
-      // Convert the image buffer to base64
-      return convertedBuffer.toString("base64");
-    } catch (error) {
-      console.error("Error fetching image:", error);
-    }
+    });
   };
 
   // Function to send the image for captioning
@@ -33,7 +38,6 @@ export default async function imageCaption(link) {
     try {
       const response = await axios.post(url, payload);
       console.log(response.data.description);
-
       if (response.data.description) {
         return response.data.description;
       }
